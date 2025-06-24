@@ -74,7 +74,7 @@ cuOpt can be installed with conda (via [miniforge](https://github.com/conda-forg
 All other dependencies are installed automatically when `cuopt-server` and `cuopt-sh-client` are installed.
 
 ```bash
-conda install -c rapidsai -c conda-forge cuopt-server=25.08.* cuopt-sh-client=25.08.*
+conda install -c rapidsai -c conda-forge -c nvidia cuopt-server=25.08.* cuopt-sh-client=25.08.*
 ```
 
 We also provide [nightly conda packages](https://anaconda.org/rapidsai-nightly) built from the HEAD

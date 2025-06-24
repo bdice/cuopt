@@ -24,11 +24,11 @@ For CUDA 12.x:
 Conda
 -----
 
-NVIDIA cuOpt can be installed with Conda (via `miniforge <https://github.com/conda-forge/miniforge>`_):
+NVIDIA cuOpt can be installed with Conda (via `miniforge <https://github.com/conda-forge/miniforge>`_ from the ``nvidia`` channel:
 
 .. code-block:: bash
 
-    conda install -c rapidsai -c conda-forge cuopt=25.08.*
+    conda install -c rapidsai -c conda-forge -c nvidia cuopt=25.08.*
 
 .. note::
    For development conda packages which are available as nightlies, please update `-c rapidsai` to `-c rapidsai-nightly`.

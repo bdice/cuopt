@@ -20,11 +20,11 @@ For CUDA 12.x:
 Conda
 -----
 
-cuOpt Server can be installed with Conda (via `miniforge <https://github.com/conda-forge/miniforge>`_):
+cuOpt Server can be installed with Conda (via `miniforge <https://github.com/conda-forge/miniforge>`_ from the ``nvidia`` channel:
 
 .. code-block:: bash
 
-    conda install -c rapidsai -c conda-forge cuopt-server=25.08.* cuopt-sh-client=25.08.*
+    conda install -c rapidsai -c conda-forge -c nvidia cuopt-server=25.08.* cuopt-sh-client=25.08.*
 
 .. note::
    For development conda packages which are available as nightlies, please update `-c rapidsai` to `-c rapidsai-nightly`.
