@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set(CUOPT_MIN_VERSION_raft "${RAPIDS_MAJOR_VERSION}.${RAPIDS_MINOR_VERSION}.00")
-set(CUOPT_BRANCH_VERSION_raft "${RAPIDS_MAJOR_VERSION}.${RAPIDS_MINOR_VERSION}")
+set(CUOPT_MIN_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}.00")
+set(CUOPT_BRANCH_VERSION_raft "${RAPIDS_VERSION_MAJOR}.${RAPIDS_VERSION_MINOR}")
 
 function(find_and_configure_raft)
     set(oneValueArgs VERSION FORK PINNED_TAG CLONE_ON_PIN)
