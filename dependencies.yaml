@@ -245,8 +245,8 @@ files:
       - run_cuopt_sh_client
       - depends_on_mps_parser
 channels:
-  - rapidsai
   - rapidsai-nightly
+  - rapidsai
   - conda-forge
 dependencies:
   rapids_build_backend:
