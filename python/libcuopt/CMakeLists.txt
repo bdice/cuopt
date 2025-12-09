@@ -56,7 +56,6 @@ option(LUSOL "Disable LUSOL" OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_BENCHMARKS OFF)
 set(CUOPT_BUILD_TESTUTIL OFF)
-set(CUDA_STATIC_RUNTIME ON)
 
 add_subdirectory(../../cpp cuopt-cpp)
 

@@ -38,8 +38,6 @@ if(NOT mps_parser_FOUND)
 
   set(_exclude_from_all "")
   if(CUOPT_BUILD_WHEELS)
-    # Statically link dependencies if building wheels
-    # set(CUDA_STATIC_RUNTIME ON)
     # Don't install the cuopt C++ targets into wheels
     set(_exclude_from_all EXCLUDE_FROM_ALL)
   endif()
