@@ -74,7 +74,6 @@ cache:
       - libcudss-dev >=0.7
       - libcurand-dev
       - libcusparse-dev
-      - cuda-cudart-dev
       - boost
       - tbb-devel
       - zlib
@@ -109,7 +108,6 @@ outputs:
         - bzip2
       ignore_run_exports:
         by_name:
-          - cuda-cudart
           - cuda-nvtx
           - cuda-version
           - gtest
@@ -152,7 +150,6 @@ outputs:
         - cuda-version =${{ cuda_version }}
         - rapids-logger =0.2
         - librmm =${{ minor_version }}
-        - cuda-cudart-dev
         - libcublas
         - libcudss-dev >=0.7
         - libcusparse-dev
@@ -165,7 +162,6 @@ outputs:
         - libcudss
       ignore_run_exports:
         by_name:
-          - cuda-cudart
           - cuda-nvtx
           - cuda-version
           - gtest
@@ -205,7 +201,6 @@ outputs:
         - boost
         - gmock ${{ gtest_version }}
         - gtest ${{ gtest_version }}
-        - cuda-cudart-dev
         - libcublas
         - libcudss-dev >=0.7
         - libcusparse-dev
@@ -216,7 +211,6 @@ outputs:
         - ${{ pin_subpackage("libmps-parser", exact=True) }}
       ignore_run_exports:
         by_name:
-          - cuda-cudart
           - cuda-nvtx
           - cuda-version
           - gtest
