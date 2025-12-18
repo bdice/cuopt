@@ -78,7 +78,7 @@ requirements:
     - libcuopt =${{ version }}
     - numba >=0.60.0
     - numba-cuda>=0.22.1,<0.23.0
-    - numpy >=1.23,<3.0a0
+    - numpy >=1.23,<3.0
     - pandas >=2.0
     - pylibraft =${{ minor_version }}
     - python
