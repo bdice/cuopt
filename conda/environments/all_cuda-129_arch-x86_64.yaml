@@ -5,7 +5,6 @@ channels:
 - rapidsai
 - conda-forge
 dependencies:
-- boost
 - breathe
 - bzip2
 - c-compiler
@@ -24,13 +23,13 @@ dependencies:
 - cxx-compiler
 - cython>=3.0.3
 - doxygen=1.9.1
-- exhale
 - fastapi
 - gcc_linux-64=14.*
 - gmock
 - gtest
 - ipython
 - jsonref==1.1.0
+- libboost-devel
 - libcudss-dev >=0.7
 - libcurand-dev
 - libcusolver-dev

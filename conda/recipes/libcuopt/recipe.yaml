@@ -51,7 +51,7 @@ cache:
 
   requirements:
     build:
-      - boost
+      - libboost-devel
       - ${{ compiler("c") }}
       - ${{ compiler("cxx") }}
       - ${{ compiler("cuda") }} =${{ cuda_version }}
@@ -75,7 +75,7 @@ cache:
       - libcurand-dev
       - libcusparse-dev
       - cuda-cudart-dev
-      - boost
+      - libboost-devel
       - tbb-devel
       - zlib
       - bzip2
@@ -148,7 +148,7 @@ outputs:
         - ${{ stdlib("c") }}
       host:
         - ${{ pin_subpackage("libmps-parser", exact=True) }}
-        - boost
+        - libboost-devel
         - cuda-version =${{ cuda_version }}
         - rapids-logger =0.2
         - librmm =${{ minor_version }}
@@ -159,7 +159,7 @@ outputs:
       run:
         - ${{ pin_compatible("cuda-version", upper_bound="x", lower_bound="x") }}
         - ${{ pin_subpackage("libmps-parser", exact=True) }}
-        - boost
+        - libboost-devel
         - librmm =${{ minor_version }}
         - cuda-nvrtc
         - libcudss
@@ -202,7 +202,7 @@ outputs:
       host:
         - ${{ pin_subpackage("libcuopt", exact=True) }}
         - ${{ pin_subpackage("libmps-parser", exact=True) }}
-        - boost
+        - libboost-devel
         - gmock ${{ gtest_version }}
         - gtest ${{ gtest_version }}
         - cuda-cudart-dev
