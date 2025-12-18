@@ -12,7 +12,6 @@
 
 #include <thrust/functional.h>
 #include <thrust/logical.h>
-#include <cuda/functional>
 #include <rmm/device_uvector.hpp>
 #include <utilities/copy_helpers.hpp>
 #include <utilities/macros.cuh>
