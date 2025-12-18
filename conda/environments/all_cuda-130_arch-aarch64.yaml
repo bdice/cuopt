@@ -25,8 +25,6 @@ dependencies:
 - doxygen=1.9.1
 - fastapi
 - gcc_linux-aarch64=14.*
-- gmock
-- gtest
 - ipython
 - jsonref==1.1.0
 - libboost-devel
