@@ -25,8 +25,6 @@ dependencies:
 - doxygen=1.9.1
 - fastapi
 - gcc_linux-64=14.*
-- gmock
-- gtest
 - ipython
 - jsonref==1.1.0
 - libboost-devel
@@ -62,7 +60,7 @@ dependencies:
 - rapids-logger==0.2.*,>=0.0.0a0
 - requests
 - rmm==26.2.*,>=0.0.0a0
-- scikit-build-core>=0.10.0
+- scikit-build-core>=0.11.0
 - sphinx
 - sphinx-copybutton
 - sphinx-design
