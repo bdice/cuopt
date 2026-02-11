@@ -22,6 +22,8 @@
 #include <mip/mip_constants.hpp>
 #include <mip/presolve/trivial_presolve.cuh>
 
+#include <dual_simplex/tic_toc.hpp>
+
 namespace cuopt::linear_programming::detail {
 template <typename i_t, typename f_t>
 rins_t<i_t, f_t>::rins_t(mip_solver_context_t<i_t, f_t>& context_,
@@ -257,24 +259,19 @@ void rins_t<i_t, f_t>::run_rins()
   branch_and_bound_settings.absolute_mip_gap_tol = context.settings.tolerances.absolute_mip_gap;
   branch_and_bound_settings.relative_mip_gap_tol =
     std::min(current_mip_gap, (f_t)settings.target_mip_gap);
-  branch_and_bound_settings.integer_tol     = context.settings.tolerances.integrality_tolerance;
-  branch_and_bound_settings.num_threads     = 2;
-  branch_and_bound_settings.num_bfs_workers = 1;
-
-  // In the future, let RINS use all the diving heuristics. For now,
-  // restricting to guided diving.
-  branch_and_bound_settings.diving_settings.num_diving_workers = 1;
-  branch_and_bound_settings.diving_settings.line_search_diving = 0;
-  branch_and_bound_settings.diving_settings.coefficient_diving = 0;
-  branch_and_bound_settings.diving_settings.pseudocost_diving  = 0;
-  branch_and_bound_settings.log.log                            = false;
-  branch_and_bound_settings.log.log_prefix                     = "[RINS] ";
+  branch_and_bound_settings.integer_tol = context.settings.tolerances.integrality_tolerance;
+  branch_and_bound_settings.num_threads = 1;
+  branch_and_bound_settings.reliability_branching = 0;
+  branch_and_bound_settings.max_cut_passes        = 0;
+  branch_and_bound_settings.sub_mip               = 1;
+  branch_and_bound_settings.log.log               = false;
+  branch_and_bound_settings.log.log_prefix        = "[RINS] ";
   branch_and_bound_settings.solution_callback = [&rins_solution_queue](std::vector<f_t>& solution,
                                                                        f_t objective) {
     rins_solution_queue.push_back(solution);
   };
-  dual_simplex::branch_and_bound_t<i_t, f_t> branch_and_bound(branch_and_bound_problem,
-                                                              branch_and_bound_settings);
+  dual_simplex::branch_and_bound_t<i_t, f_t> branch_and_bound(
+    branch_and_bound_problem, branch_and_bound_settings, dual_simplex::tic());
   branch_and_bound.set_initial_guess(cuopt::host_copy(fixed_assignment, rins_handle.get_stream()));
   branch_and_bound_status = branch_and_bound.solve(branch_and_bound_solution);
 

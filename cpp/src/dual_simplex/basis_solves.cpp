@@ -13,6 +13,8 @@
 #include <dual_simplex/tic_toc.hpp>
 #include <dual_simplex/triangle_solve.hpp>
 
+#include <raft/common/nvtx.hpp>
+
 namespace cuopt::linear_programming::dual_simplex {
 
 template <typename i_t>
@@ -57,14 +59,14 @@ void get_basis_from_vstatus(i_t m,
 
 namespace {
 
-template <typename i_t, typename f_t>
+template <typename i_t, typename f_t, typename VectorI>
 void write_singleton_info(i_t m,
                           i_t col_singletons,
                           i_t row_singletons,
                           const csc_matrix_t<i_t, f_t>& B,
-                          const std::vector<i_t>& row_perm,
-                          const std::vector<i_t>& row_perm_inv,
-                          const std::vector<i_t>& col_perm)
+                          const VectorI& row_perm,
+                          const VectorI& row_perm_inv,
+                          const VectorI& col_perm)
 {
   FILE* file = fopen("singleton_debug.m", "w");
   if (file != NULL) {
@@ -94,7 +96,7 @@ void write_singleton_info(i_t m,
   fclose(file);
 }
 
-template <typename i_t, typename f_t>
+template <typename i_t, typename f_t, typename VectorI>
 void write_factor_info(const char* filename,
                        i_t m,
                        i_t row_singletons,
@@ -104,8 +106,8 @@ void write_factor_info(const char* filename,
                        const csc_matrix_t<i_t, f_t>& D,
                        const csc_matrix_t<i_t, f_t>& L,
                        const csc_matrix_t<i_t, f_t>& U,
-                       const std::vector<i_t>& row_perm,
-                       const std::vector<i_t>& col_perm)
+                       const VectorI& row_perm,
+                       const VectorI& col_perm)
 {
   FILE* file = fopen(filename, "w");
   if (file != NULL) {
@@ -165,6 +167,7 @@ i_t factorize_basis(const csc_matrix_t<i_t, f_t>& A,
                     std::vector<i_t>& deficient,
                     std::vector<i_t>& slacks_needed)
 {
+  raft::common::nvtx::range scope("LU::factorize_basis");
   const i_t m              = basic_list.size();
   constexpr f_t medium_tol = 1e-12;
 
@@ -363,7 +366,7 @@ i_t factorize_basis(const csc_matrix_t<i_t, f_t>& A,
                                  S_perm_inv);
         if (settings.concurrent_halt != nullptr && *settings.concurrent_halt == 1) {
           settings.log.printf("Concurrent halt\n");
-          return -1;
+          return CONCURRENT_HALT_RETURN;
         }
         if (Srank != Sdim) {
           // Get the rank deficient columns
@@ -582,7 +585,7 @@ i_t factorize_basis(const csc_matrix_t<i_t, f_t>& A,
   }
   if (settings.concurrent_halt != nullptr && *settings.concurrent_halt == 1) {
     settings.log.printf("Concurrent halt\n");
-    return -1;
+    return CONCURRENT_HALT_RETURN;
   }
   if (verbose) {
     printf("Right Lnz+Unz %d t %.3f\n", L.col_start[m] + U.col_start[m], toc(fact_start));
@@ -619,12 +622,13 @@ i_t basis_repair(const csc_matrix_t<i_t, f_t>& A,
                  const std::vector<i_t>& slacks_needed,
                  std::vector<i_t>& basis_list,
                  std::vector<i_t>& nonbasic_list,
+                 std::vector<i_t>& superbasic_list,
                  std::vector<variable_status_t>& vstatus)
 {
   const i_t m = A.m;
   const i_t n = A.n;
   assert(basis_list.size() == m);
-  assert(nonbasic_list.size() == n - m);
+  assert(nonbasic_list.size() + superbasic_list.size() == n - m);
 
   // Create slack_map
   std::vector<i_t> slack_map(m);  // slack_map[i] = j if column j is e_i
@@ -649,6 +653,13 @@ i_t basis_repair(const csc_matrix_t<i_t, f_t>& A,
   for (i_t k = 0; k < num_nonbasic; ++k) {
     nonbasic_map[nonbasic_list[k]] = k;
   }
+  // Create a superbasic_map
+  std::vector<i_t> superbasic_map(
+    n, -1);  // superbasic_map[j] = p if superbasic[p] = j, -1 if j is basic/nonbasic
+  const i_t num_superbasic = superbasic_list.size();
+  for (i_t k = 0; k < num_superbasic; ++k) {
+    superbasic_map[superbasic_list[k]] = k;
+  }
 
   const i_t columns_to_replace = deficient.size();
   for (i_t k = 0; k < columns_to_replace; ++k) {
@@ -656,19 +667,25 @@ i_t basis_repair(const csc_matrix_t<i_t, f_t>& A,
     const i_t replace_i      = slacks_needed[k];
     const i_t replace_j      = slack_map[replace_i];
     basis_list[deficient[k]] = replace_j;
-    assert(nonbasic_map[replace_j] != -1);
-    nonbasic_list[nonbasic_map[replace_j]] = bad_j;
-    vstatus[replace_j]                     = variable_status_t::BASIC;
-    // This is the main issue. What value should bad_j take on.
-    if (lower[bad_j] == -inf && upper[bad_j] == inf) {
-      vstatus[bad_j] = variable_status_t::NONBASIC_FREE;
-    } else if (lower[bad_j] > -inf) {
-      vstatus[bad_j] = variable_status_t::NONBASIC_LOWER;
-    } else if (upper[bad_j] < inf) {
-      vstatus[bad_j] = variable_status_t::NONBASIC_UPPER;
+    if (nonbasic_map[replace_j] != -1) {
+      nonbasic_list[nonbasic_map[replace_j]] = bad_j;
+      // This is the main issue. What value should bad_j take on.
+      if (lower[bad_j] == -inf && upper[bad_j] == inf) {
+        vstatus[bad_j] = variable_status_t::NONBASIC_FREE;
+      } else if (lower[bad_j] > -inf) {
+        vstatus[bad_j] = variable_status_t::NONBASIC_LOWER;
+      } else if (upper[bad_j] < inf) {
+        vstatus[bad_j] = variable_status_t::NONBASIC_UPPER;
+      } else {
+        assert(1 == 0);
+      }
+    } else if (superbasic_map[replace_j] != -1) {
+      superbasic_list[superbasic_map[replace_j]] = bad_j;
+      vstatus[bad_j]                             = variable_status_t::SUPERBASIC;
     } else {
-      assert(1 == 0);
+      assert(nonbasic_map[replace_j] != -1 || superbasic_map[replace_j] != -1);
     }
+    vstatus[replace_j] = variable_status_t::BASIC;
   }
 
   return 0;
@@ -764,6 +781,8 @@ i_t b_transpose_solve(const csc_matrix_t<i_t, f_t>& L,
   // B'*P'*w = U'*L'*w = c
   // U'*r = c
   // L'*w = r
+
+  raft::common::nvtx::range scope("LU::b_transpose_solve");
 
   // Solve for r such that U'*r = c
   std::vector<f_t> r = rhs;
@@ -865,6 +884,7 @@ template int basis_repair<int, double>(const csc_matrix_t<int, double>& A,
                                        const std::vector<int>& slacks_needed,
                                        std::vector<int>& basis_list,
                                        std::vector<int>& nonbasic_list,
+                                       std::vector<int>& superbasic_list,
                                        std::vector<variable_status_t>& vstatus);
 
 template int form_b<int, double>(const csc_matrix_t<int, double>& A,

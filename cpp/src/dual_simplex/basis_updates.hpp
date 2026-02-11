@@ -223,6 +223,9 @@ class basis_update_mpf_t {
     reset_stats();
   }
 
+  basis_update_mpf_t(const basis_update_mpf_t& other)            = default;
+  basis_update_mpf_t& operator=(const basis_update_mpf_t& other) = default;
+
   void print_stats() const
   {
     i_t total_L_transpose_calls = total_sparse_L_transpose_ + total_dense_L_transpose_;
@@ -290,6 +293,8 @@ class basis_update_mpf_t {
     clear();
     reset_stats();
   }
+
+  i_t append_cuts(const csr_matrix_t<i_t, f_t>& cuts_basic);
 
   f_t estimate_solution_density(f_t rhs_nz, f_t sum, i_t& num_calls, bool& use_hypersparse) const
   {
@@ -378,6 +383,8 @@ class basis_update_mpf_t {
                      std::vector<i_t>& basic_list,
                      std::vector<i_t>& nonbasic_list,
                      std::vector<variable_status_t>& vstatus);
+
+  void set_refactor_frequency(i_t new_frequency) { refactor_frequency_ = new_frequency; }
 
  private:
   void clear()
