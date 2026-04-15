@@ -36,8 +36,7 @@ inline auto make_pool()
 {
   // 1GB of initial pool size
   const size_t initial_pool_size = 1024 * 1024 * 1024;
-  auto upstream                  = make_async();
-  return rmm::mr::pool_memory_resource(upstream, initial_pool_size);
+  return rmm::mr::pool_memory_resource(make_async(), initial_pool_size);
 }
 
 inline auto make_binning()
