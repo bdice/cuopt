@@ -424,7 +424,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < std::min(raft::device_setter::get_device_count(), num_gpus); ++i) {
       RAFT_CUDA_TRY(cudaSetDevice(i));
       memory_resources.emplace_back();
-      rmm::mr::set_per_device_resource_ref(rmm::cuda_device_id{i}, memory_resources.back());
+      rmm::mr::set_per_device_resource(rmm::cuda_device_id{i}, memory_resources.back());
     }
     RAFT_CUDA_TRY(cudaSetDevice(0));
   }

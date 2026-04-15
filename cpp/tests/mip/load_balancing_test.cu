@@ -119,7 +119,7 @@ bounds_probe_results(detail::bound_presolve_t<int, double>& bnd_prb_0,
 void test_multi_probe(std::string path)
 {
   auto memory_resource = make_async();
-  rmm::mr::set_current_device_resource_ref(memory_resource);
+  rmm::mr::set_current_device_resource(memory_resource);
   const raft::handle_t handle_{};
   cuopt::mps_parser::mps_data_model_t<int, double> mps_problem =
     cuopt::mps_parser::parse_mps<int, double>(path, false);
