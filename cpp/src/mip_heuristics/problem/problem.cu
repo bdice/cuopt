@@ -27,9 +27,12 @@
 #include <thrust/count.h>
 #include <thrust/gather.h>
 #include <thrust/iterator/counting_iterator.h>
+#include <thrust/iterator/transform_iterator.h>
+#include <thrust/iterator/zip_iterator.h>
 #include <thrust/set_operations.h>
 #include <thrust/sort.h>
 #include <thrust/tabulate.h>
+#include <thrust/transform_reduce.h>
 #include <thrust/tuple.h>
 #include <cuda/std/functional>
 
@@ -203,6 +206,7 @@ problem_t<i_t, f_t>::problem_t(const problem_t<i_t, f_t>& problem_)
     clique_table(problem_.clique_table),
     vars_with_objective_coeffs(problem_.vars_with_objective_coeffs),
     expensive_to_fix_vars(problem_.expensive_to_fix_vars),
+    related_vars_time_limit(problem_.related_vars_time_limit),
     Q_offsets(problem_.Q_offsets),
     Q_indices(problem_.Q_indices),
     Q_values(problem_.Q_values)
@@ -260,6 +264,7 @@ problem_t<i_t, f_t>::problem_t(const problem_t<i_t, f_t>& problem_,
     clique_table(problem_.clique_table),
     vars_with_objective_coeffs(problem_.vars_with_objective_coeffs),
     expensive_to_fix_vars(problem_.expensive_to_fix_vars),
+    related_vars_time_limit(problem_.related_vars_time_limit),
     Q_offsets(problem_.Q_offsets),
     Q_indices(problem_.Q_indices),
     Q_values(problem_.Q_values)
@@ -360,6 +365,7 @@ problem_t<i_t, f_t>::problem_t(const problem_t<i_t, f_t>& problem_, bool no_deep
     fixing_helpers(problem_.fixing_helpers, handle_ptr),
     vars_with_objective_coeffs(problem_.vars_with_objective_coeffs),
     expensive_to_fix_vars(problem_.expensive_to_fix_vars),
+    related_vars_time_limit(problem_.related_vars_time_limit),
     Q_offsets(problem_.Q_offsets),
     Q_indices(problem_.Q_indices),
     Q_values(problem_.Q_values)
@@ -802,8 +808,7 @@ void problem_t<i_t, f_t>::recompute_auxilliary_data(bool check_representation)
   compute_binary_var_table();
   compute_vars_with_objective_coeffs();
   // TODO: speedup compute related variables
-  const double time_limit = 30.;
-  compute_related_variables(time_limit);
+  compute_related_variables(related_vars_time_limit);
   if (check_representation) cuopt_func_call(check_problem_representation(true));
 }
 
@@ -2138,9 +2143,11 @@ bool problem_t<i_t, f_t>::pre_process_assignment(rmm::device_uvector<f_t>& assig
 
 template <typename i_t, typename f_t>
 void problem_t<i_t, f_t>::post_process_assignment(rmm::device_uvector<f_t>& current_assignment,
-                                                  bool resize_to_original_problem)
+                                                  bool resize_to_original_problem,
+                                                  rmm::cuda_stream_view stream)
 {
-  presolve_data.post_process_assignment(*this, current_assignment, resize_to_original_problem);
+  presolve_data.post_process_assignment(
+    *this, current_assignment, resize_to_original_problem, stream);
 }
 
 template <typename i_t, typename f_t>

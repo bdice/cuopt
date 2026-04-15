@@ -302,6 +302,12 @@ dependencies:
           - tbb-devel
           - zlib
           - bzip2
+          - openssl
+          - c-ares
+          - libgrpc >=1.78.0,<1.80.0a0
+          - libprotobuf
+          - libabseil
+          - re2
   test_cpp:
     common:
       - output_types: [conda]
@@ -762,8 +768,8 @@ dependencies:
           - pre-commit
       - output_types: conda
         packages:
-          - clang==20.1.4
-          - clang-tools=20.1.4
+          - clang==20.1.8
+          - clang-tools=20.1.8
           - &doxygen doxygen=1.9.1 # pre-commit hook needs a specific version.
   docs:
     common:
