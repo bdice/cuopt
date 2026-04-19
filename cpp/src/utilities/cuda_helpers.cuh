@@ -241,7 +241,8 @@ DI void sorted_insert(T* array, T item, int curr_size, int max_size)
 inline size_t get_device_memory_size()
 {
   size_t free_mem, total_mem;
-  cudaMemGetInfo(&free_mem, &total_mem);
+  RAFT_CUDA_TRY(cudaMemGetInfo(&free_mem, &total_mem));
+  // TODO (bdice): Restore limiting adaptor check after updating CCCL to support resource_cast
   return total_mem;
 }
 
