@@ -164,7 +164,7 @@ endif (DEFINE_PDLP_VERBOSE_MODE)
 # on cuda 13.1, this can produce a non-contiguous byte mask which is not allowed in Hopper/Blackwell.
 # This is fixed only NVCC ≥ 13.2.
 
-if (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS_EQUAL 13.2)
+if (CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 13.2)
     add_definitions(-DCCCL_DISABLE_WARPSPEED_SCAN)
 endif ()
 
