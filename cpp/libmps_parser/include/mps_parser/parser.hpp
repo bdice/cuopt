@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <mps_parser/export.hpp>
 #include <mps_parser/mps_data_model.hpp>
 
 #include <string>
@@ -37,8 +38,8 @@ namespace cuopt::mps_parser {
  * @return mps_data_model_t A fully formed LP/QP problem which represents the given file
  */
 template <typename i_t, typename f_t>
-mps_data_model_t<i_t, f_t> parse_mps(const std::string& mps_file_path,
-                                     bool fixed_mps_format = false);
+MPS_PARSER_EXPORT mps_data_model_t<i_t, f_t> parse_mps(const std::string& mps_file_path,
+                                                       bool fixed_mps_format = false);
 
 /**
  * @brief Reads an MPS problem from in-memory file contents.
@@ -52,7 +53,7 @@ mps_data_model_t<i_t, f_t> parse_mps(const std::string& mps_file_path,
  * @return mps_data_model_t A fully formed problem which represents the given content.
  */
 template <typename i_t, typename f_t>
-mps_data_model_t<i_t, f_t> parse_mps_from_string(std::string_view mps_contents,
-                                                 bool fixed_mps_format = false);
+MPS_PARSER_EXPORT mps_data_model_t<i_t, f_t> parse_mps_from_string(std::string_view mps_contents,
+                                                                   bool fixed_mps_format = false);
 
 }  // namespace cuopt::mps_parser
