@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <mps_parser/export.hpp>
+
 #include <cstdint>
 #include <span>
 #include <string>
@@ -41,7 +43,7 @@ namespace cuopt::mps_parser {
  * please refer to the `set_objective_scaling_factor()` and `set_objective_offset()` methods.
  */
 template <typename i_t, typename f_t>
-class mps_data_model_t {
+class MPS_PARSER_EXPORT mps_data_model_t {
  public:
   static_assert(std::is_integral<i_t>::value,
                 "'mps_data_model_t' accepts only integer types for indexes");

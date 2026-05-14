@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/optimization_problem_interface.hpp>
 #include <cuopt/linear_programming/utilities/internals.hpp>
 
@@ -65,7 +66,7 @@ class mip_solution_interface_t;
  * `set_objective_offset()` methods.
  */
 template <typename i_t, typename f_t>
-class optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
+class CUOPT_EXPORT optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
  public:
   static_assert(std::is_integral<i_t>::value,
                 "'optimization_problem_t' accepts only integer types for indexes");

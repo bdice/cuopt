@@ -8,6 +8,7 @@
 #pragma once
 
 #include <mps_parser/data_model_view.hpp>
+#include <mps_parser/export.hpp>
 #include <mps_parser/mps_data_model.hpp>
 
 #include <stdarg.h>
@@ -27,7 +28,7 @@ namespace cuopt::mps_parser {
  * @tparam i_t  data type of the indices
  */
 template <typename i_t, typename f_t>
-class mps_writer_t {
+class MPS_PARSER_EXPORT mps_writer_t {
  public:
   /**
    * @brief Ctor. Takes a data model view as input and writes it out as a MPS formatted file

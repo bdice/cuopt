@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/cpu_optimization_problem_solution.hpp>
 #include <cuopt/linear_programming/mip/solver_settings.hpp>
 #include <cuopt/linear_programming/optimization_problem_interface.hpp>
@@ -38,8 +39,9 @@ class SubmitJobRequest;
 namespace cuopt::linear_programming {
 
 // Forward declarations for test helper functions (implemented in grpc_client.cpp)
-void grpc_test_inject_mock_stub(class grpc_client_t& client, std::shared_ptr<void> stub);
-void grpc_test_mark_as_connected(class grpc_client_t& client);
+CUOPT_EXPORT void grpc_test_inject_mock_stub(class grpc_client_t& client,
+                                             std::shared_ptr<void> stub);
+CUOPT_EXPORT void grpc_test_mark_as_connected(class grpc_client_t& client);
 
 /**
  * @brief Configuration options for the gRPC client
@@ -215,7 +217,7 @@ struct remote_mip_result_t {
  * - Test clients for validation
  * - solve_lp_remote() and solve_mip_remote() for production use
  */
-class grpc_client_t {
+class CUOPT_EXPORT grpc_client_t {
   // Allow test helpers to access internal implementation for mock injection
   friend void grpc_test_inject_mock_stub(grpc_client_t&, std::shared_ptr<void>);
   friend void grpc_test_mark_as_connected(grpc_client_t&);

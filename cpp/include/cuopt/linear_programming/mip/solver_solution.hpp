@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cuopt/linear_programming/constants.h>
+#include <cuopt/common/export.hpp>
 #include <cuopt/error.hpp>
 #include <cuopt/linear_programming/mip/solver_stats.hpp>
 #include <cuopt/linear_programming/utilities/internals.hpp>
@@ -35,7 +36,7 @@ enum class mip_termination_status_t : int8_t {
 };
 
 template <typename i_t, typename f_t>
-class mip_solution_t : public base_solution_t {
+class CUOPT_EXPORT mip_solution_t : public base_solution_t {
  public:
   mip_solution_t(rmm::device_uvector<f_t> solution,
                  std::vector<std::string> var_names,

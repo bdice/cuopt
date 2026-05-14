@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/cpu_pdlp_warm_start_data.hpp>
 #include <cuopt/linear_programming/mip/solver_solution.hpp>
 #include <cuopt/linear_programming/mip/solver_stats.hpp>
@@ -27,7 +28,7 @@ namespace cuopt::linear_programming {
  * Used for remote execution where GPU memory is not available.
  */
 template <typename i_t, typename f_t>
-class cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
+class CUOPT_EXPORT cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  public:
   // Bring base class overloads into scope to avoid hiding warnings
   using lp_solution_interface_t<i_t, f_t>::get_objective_value;
@@ -279,7 +280,7 @@ class cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  * Used for remote execution where GPU memory is not available.
  */
 template <typename i_t, typename f_t>
-class cpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
+class CUOPT_EXPORT cpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
  public:
   /**
    * @brief Construct an empty CPU MIP solution (for errors)

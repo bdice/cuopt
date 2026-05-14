@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/cpu_optimization_problem_solution.hpp>
 #include <cuopt/linear_programming/mip/solver_solution.hpp>
 #include <cuopt/linear_programming/optimization_problem_solution_interface.hpp>
@@ -25,7 +26,7 @@ namespace cuopt::linear_programming {
  * It implements the interface to allow polymorphism with CPU solutions.
  */
 template <typename i_t, typename f_t>
-class gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
+class CUOPT_EXPORT gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  public:
   // Bring base class overloads into scope to avoid hiding warnings
   using lp_solution_interface_t<i_t, f_t>::get_objective_value;
@@ -382,7 +383,7 @@ class gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  * It implements the interface to allow polymorphism with CPU solutions.
  */
 template <typename i_t, typename f_t>
-class gpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
+class CUOPT_EXPORT gpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
  public:
   /**
    * @brief Construct from existing mip_solution_t (move)

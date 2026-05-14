@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
+
 #include <cuopt_remote.pb.h>
 #include <cuopt_remote_service.pb.h>
 
@@ -26,8 +28,8 @@ namespace cuopt::linear_programming {
  * Does not perform serialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-void map_lp_solution_to_proto(const cpu_lp_solution_t<i_t, f_t>& solution,
-                              cuopt::remote::LPSolution* pb_solution);
+CUOPT_EXPORT void map_lp_solution_to_proto(const cpu_lp_solution_t<i_t, f_t>& solution,
+                                           cuopt::remote::LPSolution* pb_solution);
 
 /**
  * @brief Map protobuf LPSolution message to cpu_lp_solution_t.
@@ -36,7 +38,8 @@ void map_lp_solution_to_proto(const cpu_lp_solution_t<i_t, f_t>& solution,
  * Does not perform deserialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-cpu_lp_solution_t<i_t, f_t> map_proto_to_lp_solution(const cuopt::remote::LPSolution& pb_solution);
+CUOPT_EXPORT cpu_lp_solution_t<i_t, f_t> map_proto_to_lp_solution(
+  const cuopt::remote::LPSolution& pb_solution);
 
 /**
  * @brief Map cpu_mip_solution_t to protobuf MIPSolution message.
@@ -45,8 +48,8 @@ cpu_lp_solution_t<i_t, f_t> map_proto_to_lp_solution(const cuopt::remote::LPSolu
  * Does not perform serialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-void map_mip_solution_to_proto(const cpu_mip_solution_t<i_t, f_t>& solution,
-                               cuopt::remote::MIPSolution* pb_solution);
+CUOPT_EXPORT void map_mip_solution_to_proto(const cpu_mip_solution_t<i_t, f_t>& solution,
+                                            cuopt::remote::MIPSolution* pb_solution);
 
 /**
  * @brief Map protobuf MIPSolution message to cpu_mip_solution_t.
@@ -55,7 +58,7 @@ void map_mip_solution_to_proto(const cpu_mip_solution_t<i_t, f_t>& solution,
  * Does not perform deserialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-cpu_mip_solution_t<i_t, f_t> map_proto_to_mip_solution(
+CUOPT_EXPORT cpu_mip_solution_t<i_t, f_t> map_proto_to_mip_solution(
   const cuopt::remote::MIPSolution& pb_solution);
 
 /**
@@ -94,27 +97,27 @@ mip_termination_status_t from_proto_mip_status(cuopt::remote::MIPTerminationStat
  * @brief Estimate serialized protobuf size of an LP solution.
  */
 template <typename i_t, typename f_t>
-size_t estimate_lp_solution_proto_size(const cpu_lp_solution_t<i_t, f_t>& solution);
+CUOPT_EXPORT size_t estimate_lp_solution_proto_size(const cpu_lp_solution_t<i_t, f_t>& solution);
 
 /**
  * @brief Estimate serialized protobuf size of a MIP solution.
  */
 template <typename i_t, typename f_t>
-size_t estimate_mip_solution_proto_size(const cpu_mip_solution_t<i_t, f_t>& solution);
+CUOPT_EXPORT size_t estimate_mip_solution_proto_size(const cpu_mip_solution_t<i_t, f_t>& solution);
 
 /**
  * @brief Populate a ChunkedResultHeader from an LP solution (scalar fields + array descriptors).
  */
 template <typename i_t, typename f_t>
-void populate_chunked_result_header_lp(const cpu_lp_solution_t<i_t, f_t>& solution,
-                                       cuopt::remote::ChunkedResultHeader* header);
+CUOPT_EXPORT void populate_chunked_result_header_lp(const cpu_lp_solution_t<i_t, f_t>& solution,
+                                                    cuopt::remote::ChunkedResultHeader* header);
 
 /**
  * @brief Populate a ChunkedResultHeader from a MIP solution (scalar fields + array descriptors).
  */
 template <typename i_t, typename f_t>
-void populate_chunked_result_header_mip(const cpu_mip_solution_t<i_t, f_t>& solution,
-                                        cuopt::remote::ChunkedResultHeader* header);
+CUOPT_EXPORT void populate_chunked_result_header_mip(const cpu_mip_solution_t<i_t, f_t>& solution,
+                                                     cuopt::remote::ChunkedResultHeader* header);
 
 /**
  * @brief Collect LP solution arrays as raw bytes keyed by ResultFieldId.
@@ -123,14 +126,14 @@ void populate_chunked_result_header_mip(const cpu_mip_solution_t<i_t, f_t>& solu
  * Used by the worker to send chunked result data.
  */
 template <typename i_t, typename f_t>
-std::map<int32_t, std::vector<uint8_t>> collect_lp_solution_arrays(
+CUOPT_EXPORT std::map<int32_t, std::vector<uint8_t>> collect_lp_solution_arrays(
   const cpu_lp_solution_t<i_t, f_t>& solution);
 
 /**
  * @brief Collect MIP solution arrays as raw bytes keyed by ResultFieldId.
  */
 template <typename i_t, typename f_t>
-std::map<int32_t, std::vector<uint8_t>> collect_mip_solution_arrays(
+CUOPT_EXPORT std::map<int32_t, std::vector<uint8_t>> collect_mip_solution_arrays(
   const cpu_mip_solution_t<i_t, f_t>& solution);
 
 // ============================================================================
@@ -145,7 +148,7 @@ std::map<int32_t, std::vector<uint8_t>> collect_mip_solution_arrays(
  * byte map.
  */
 template <typename i_t, typename f_t>
-cpu_lp_solution_t<i_t, f_t> chunked_result_to_lp_solution(
+CUOPT_EXPORT cpu_lp_solution_t<i_t, f_t> chunked_result_to_lp_solution(
   const cuopt::remote::ChunkedResultHeader& header,
   const std::map<int32_t, std::vector<uint8_t>>& arrays);
 
@@ -153,7 +156,7 @@ cpu_lp_solution_t<i_t, f_t> chunked_result_to_lp_solution(
  * @brief Reconstruct a cpu_mip_solution_t from chunked result header and raw array data.
  */
 template <typename i_t, typename f_t>
-cpu_mip_solution_t<i_t, f_t> chunked_result_to_mip_solution(
+CUOPT_EXPORT cpu_mip_solution_t<i_t, f_t> chunked_result_to_mip_solution(
   const cuopt::remote::ChunkedResultHeader& header,
   const std::map<int32_t, std::vector<uint8_t>>& arrays);
 
@@ -168,16 +171,16 @@ cpu_mip_solution_t<i_t, f_t> chunked_result_to_mip_solution(
  * Composes chunked_result_to_lp_solution + map_lp_solution_to_proto.
  */
 template <typename i_t, typename f_t>
-void build_lp_solution_proto(const cuopt::remote::ChunkedResultHeader& header,
-                             const std::map<int32_t, std::vector<uint8_t>>& arrays,
-                             cuopt::remote::LPSolution* proto);
+CUOPT_EXPORT void build_lp_solution_proto(const cuopt::remote::ChunkedResultHeader& header,
+                                          const std::map<int32_t, std::vector<uint8_t>>& arrays,
+                                          cuopt::remote::LPSolution* proto);
 
 /**
  * @brief Build a full MIPSolution protobuf from a ChunkedResultHeader and raw arrays.
  */
 template <typename i_t, typename f_t>
-void build_mip_solution_proto(const cuopt::remote::ChunkedResultHeader& header,
-                              const std::map<int32_t, std::vector<uint8_t>>& arrays,
-                              cuopt::remote::MIPSolution* proto);
+CUOPT_EXPORT void build_mip_solution_proto(const cuopt::remote::ChunkedResultHeader& header,
+                                           const std::map<int32_t, std::vector<uint8_t>>& arrays,
+                                           cuopt::remote::MIPSolution* proto);
 
 }  // namespace cuopt::linear_programming

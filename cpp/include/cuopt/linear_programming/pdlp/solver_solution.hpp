@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cuopt/linear_programming/constants.h>
+#include <cuopt/common/export.hpp>
 #include <cuopt/error.hpp>
 #include <cuopt/linear_programming/pdlp/pdlp_warm_start_data.hpp>
 #include <cuopt/linear_programming/pdlp/solver_settings.hpp>
@@ -44,7 +45,7 @@ enum class pdlp_termination_status_t : int8_t {
  * @tparam f_t Floating point type. Currently only float (32bit) and double (64bit) are supported.
  */
 template <typename i_t, typename f_t>
-class optimization_problem_solution_t : public base_solution_t {
+class CUOPT_EXPORT optimization_problem_solution_t : public base_solution_t {
  public:
   bool is_mip() const override { return false; }
   /**

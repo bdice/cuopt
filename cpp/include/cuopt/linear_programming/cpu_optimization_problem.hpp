@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/optimization_problem_interface.hpp>
 
 #include <raft/core/handle.hpp>
@@ -39,7 +40,7 @@ class mip_solution_interface_t;
  * Device getters throw exceptions as GPU memory access is not supported.
  */
 template <typename i_t, typename f_t>
-class cpu_optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
+class CUOPT_EXPORT cpu_optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
  public:
   using typename optimization_problem_interface_t<i_t, f_t>::quadratic_constraint_t;
 

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <mps_parser/export.hpp>
 #include <mps_parser/mps_data_model.hpp>
 
 #include <stdarg.h>
@@ -62,7 +63,7 @@ enum ObjSenseType {
  *       `NAME -> ROWS -> COLUMNS -> RHS`
  */
 template <typename i_t, typename f_t>
-class mps_parser_t {
+class MPS_PARSER_EXPORT mps_parser_t {
  public:
   /**
    * @brief Ctor. Parses the MPS file and generates the internal representation

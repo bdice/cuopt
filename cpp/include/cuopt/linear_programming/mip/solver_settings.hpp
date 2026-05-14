@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
+
 #include <optional>
 #include <vector>
 
@@ -41,7 +43,7 @@ struct mip_solver_settings_accessor;
 }  // namespace detail
 
 template <typename i_t, typename f_t>
-class mip_solver_settings_t {
+class CUOPT_EXPORT mip_solver_settings_t {
  public:
   mip_solver_settings_t() = default;
 

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cuopt/linear_programming/constants.h>
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/cpu_pdlp_warm_start_data.hpp>
 #include <cuopt/linear_programming/pdlp/pdlp_hyper_params.cuh>
 #include <cuopt/linear_programming/pdlp/pdlp_warm_start_data.hpp>
@@ -97,7 +98,7 @@ enum pdlp_precision_t : int {
 };
 
 template <typename i_t, typename f_t>
-class pdlp_solver_settings_t {
+class CUOPT_EXPORT pdlp_solver_settings_t {
  public:
   pdlp_solver_settings_t() = default;
 

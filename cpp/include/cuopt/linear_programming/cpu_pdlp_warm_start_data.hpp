@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/pdlp/pdlp_warm_start_data.hpp>
 #include <vector>
 
@@ -110,12 +111,12 @@ struct pdlp_warm_start_data_t;
 
 // Convert GPU → CPU warmstart (D2H copy)
 template <typename i_t, typename f_t>
-cpu_pdlp_warm_start_data_t<i_t, f_t> convert_to_cpu_warmstart(
+CUOPT_EXPORT cpu_pdlp_warm_start_data_t<i_t, f_t> convert_to_cpu_warmstart(
   const pdlp_warm_start_data_t<i_t, f_t>& gpu_data, rmm::cuda_stream_view stream);
 
 // Convert CPU → GPU warmstart (H2D copy)
 template <typename i_t, typename f_t>
-pdlp_warm_start_data_t<i_t, f_t> convert_to_gpu_warmstart(
+CUOPT_EXPORT pdlp_warm_start_data_t<i_t, f_t> convert_to_gpu_warmstart(
   const cpu_pdlp_warm_start_data_t<i_t, f_t>& cpu_data, rmm::cuda_stream_view stream);
 
 }  // namespace cuopt::linear_programming
