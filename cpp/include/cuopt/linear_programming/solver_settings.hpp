@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/linear_programming/pdlp/pdlp_warm_start_data.hpp>
 
 #include <raft/core/device_span.hpp>
@@ -25,7 +26,7 @@
 namespace cuopt::linear_programming {
 
 template <typename i_t, typename f_t>
-class solver_settings_t {
+class CUOPT_EXPORT solver_settings_t {
  public:
   solver_settings_t();
 

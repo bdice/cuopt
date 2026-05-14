@@ -1,12 +1,13 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/logger_macros.hpp>
 
 #include <rapids_logger/logger.hpp>
@@ -24,17 +25,17 @@ namespace cuopt {
  *
  * @return logger& The default logger
  */
-rapids_logger::logger& default_logger();
+CUOPT_EXPORT rapids_logger::logger& default_logger();
 
 /**
  * @brief Reset the default logger to the default settings.
  *  This is needed when we are running multiple tests and each test has different logger settings
  *  and we need to reset the logger to the default settings before each test.
  */
-void reset_default_logger();
+CUOPT_EXPORT void reset_default_logger();
 
 // Ref-counted logger initializer
-class init_logger_t {
+class CUOPT_EXPORT init_logger_t {
   // Using shared_ptr for ref-counting
   std::shared_ptr<void> guard_;
 
