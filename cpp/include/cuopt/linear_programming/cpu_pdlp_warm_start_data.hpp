@@ -11,7 +11,8 @@
 #include <cuopt/linear_programming/pdlp/pdlp_warm_start_data.hpp>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // CPU version of pdlp_warm_start_data_t using std::vector for remote execution
 template <typename i_t, typename f_t>
@@ -111,12 +112,13 @@ struct pdlp_warm_start_data_t;
 
 // Convert GPU → CPU warmstart (D2H copy)
 template <typename i_t, typename f_t>
-CUOPT_EXPORT cpu_pdlp_warm_start_data_t<i_t, f_t> convert_to_cpu_warmstart(
+cpu_pdlp_warm_start_data_t<i_t, f_t> convert_to_cpu_warmstart(
   const pdlp_warm_start_data_t<i_t, f_t>& gpu_data, rmm::cuda_stream_view stream);
 
 // Convert CPU → GPU warmstart (H2D copy)
 template <typename i_t, typename f_t>
-CUOPT_EXPORT pdlp_warm_start_data_t<i_t, f_t> convert_to_gpu_warmstart(
+pdlp_warm_start_data_t<i_t, f_t> convert_to_gpu_warmstart(
   const cpu_pdlp_warm_start_data_t<i_t, f_t>& cpu_data, rmm::cuda_stream_view stream);
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

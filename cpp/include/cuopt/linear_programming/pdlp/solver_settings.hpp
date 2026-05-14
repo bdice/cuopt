@@ -22,7 +22,8 @@
 
 #include <cuda/std/span>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // Forward declare solver_settings_t for friend class
 template <typename i_t, typename f_t>
@@ -98,7 +99,7 @@ enum pdlp_precision_t : int {
 };
 
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT pdlp_solver_settings_t {
+class pdlp_solver_settings_t {
  public:
   pdlp_solver_settings_t() = default;
 
@@ -350,4 +351,5 @@ class CUOPT_EXPORT pdlp_solver_settings_t {
   friend class solver_settings_t<i_t, f_t>;
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -11,7 +11,8 @@
 
 #include <cstdint>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // Forward declarations
 template <typename i_t, typename f_t>
@@ -27,8 +28,8 @@ struct mip_solver_settings_t;
  * Does not perform serialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_pdlp_settings_to_proto(const pdlp_solver_settings_t<i_t, f_t>& settings,
-                                             cuopt::remote::PDLPSolverSettings* pb_settings);
+void map_pdlp_settings_to_proto(const pdlp_solver_settings_t<i_t, f_t>& settings,
+                                cuopt::remote::PDLPSolverSettings* pb_settings);
 
 /**
  * @brief Map protobuf PDLPSolverSettings message to pdlp_solver_settings_t.
@@ -37,8 +38,8 @@ CUOPT_EXPORT void map_pdlp_settings_to_proto(const pdlp_solver_settings_t<i_t, f
  * Does not perform deserialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_proto_to_pdlp_settings(const cuopt::remote::PDLPSolverSettings& pb_settings,
-                                             pdlp_solver_settings_t<i_t, f_t>& settings);
+void map_proto_to_pdlp_settings(const cuopt::remote::PDLPSolverSettings& pb_settings,
+                                pdlp_solver_settings_t<i_t, f_t>& settings);
 
 /**
  * @brief Map mip_solver_settings_t to protobuf MIPSolverSettings message.
@@ -47,8 +48,8 @@ CUOPT_EXPORT void map_proto_to_pdlp_settings(const cuopt::remote::PDLPSolverSett
  * Does not perform serialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_mip_settings_to_proto(const mip_solver_settings_t<i_t, f_t>& settings,
-                                            cuopt::remote::MIPSolverSettings* pb_settings);
+void map_mip_settings_to_proto(const mip_solver_settings_t<i_t, f_t>& settings,
+                               cuopt::remote::MIPSolverSettings* pb_settings);
 
 /**
  * @brief Map protobuf MIPSolverSettings message to mip_solver_settings_t.
@@ -57,7 +58,8 @@ CUOPT_EXPORT void map_mip_settings_to_proto(const mip_solver_settings_t<i_t, f_t
  * Does not perform deserialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_proto_to_mip_settings(const cuopt::remote::MIPSolverSettings& pb_settings,
-                                            mip_solver_settings_t<i_t, f_t>& settings);
+void map_proto_to_mip_settings(const cuopt::remote::MIPSolverSettings& pb_settings,
+                               mip_solver_settings_t<i_t, f_t>& settings);
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

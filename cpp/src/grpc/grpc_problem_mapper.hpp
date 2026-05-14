@@ -20,7 +20,8 @@ namespace cuopt::remote {
 class ChunkedProblemHeader;
 }
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // Forward declarations
 template <typename i_t, typename f_t>
@@ -39,8 +40,8 @@ struct mip_solver_settings_t;
  * Does not perform serialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_problem_to_proto(const cpu_optimization_problem_t<i_t, f_t>& cpu_problem,
-                                       cuopt::remote::OptimizationProblem* pb_problem);
+void map_problem_to_proto(const cpu_optimization_problem_t<i_t, f_t>& cpu_problem,
+                          cuopt::remote::OptimizationProblem* pb_problem);
 
 /**
  * @brief Map protobuf OptimizationProblem message to cpu_optimization_problem_t.
@@ -49,8 +50,8 @@ CUOPT_EXPORT void map_problem_to_proto(const cpu_optimization_problem_t<i_t, f_t
  * Does not perform deserialization — that is handled by the protobuf library.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_proto_to_problem(const cuopt::remote::OptimizationProblem& pb_problem,
-                                       cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
+void map_proto_to_problem(const cuopt::remote::OptimizationProblem& pb_problem,
+                          cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
 
 /**
  * @brief Estimate the serialized protobuf size of a SolveLPRequest/SolveMIPRequest.
@@ -93,8 +94,8 @@ void populate_chunked_header_mip(const cpu_optimization_problem_t<i_t, f_t>& cpu
  * must be populated separately from ArrayChunk data.
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_chunked_header_to_problem(const cuopt::remote::ChunkedProblemHeader& header,
-                                                cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
+void map_chunked_header_to_problem(const cuopt::remote::ChunkedProblemHeader& header,
+                                   cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
 
 /**
  * @brief Reconstruct a cpu_optimization_problem_t from a ChunkedProblemHeader and raw array data.
@@ -108,10 +109,9 @@ CUOPT_EXPORT void map_chunked_header_to_problem(const cuopt::remote::ChunkedProb
  * @param cpu_problem The cpu_optimization_problem_t to populate (output parameter)
  */
 template <typename i_t, typename f_t>
-CUOPT_EXPORT void map_chunked_arrays_to_problem(
-  const cuopt::remote::ChunkedProblemHeader& header,
-  const std::map<int32_t, std::vector<uint8_t>>& arrays,
-  cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
+void map_chunked_arrays_to_problem(const cuopt::remote::ChunkedProblemHeader& header,
+                                   const std::map<int32_t, std::vector<uint8_t>>& arrays,
+                                   cpu_optimization_problem_t<i_t, f_t>& cpu_problem);
 
 /**
  * @brief Build SendArrayChunkRequest messages for chunked upload of problem arrays.
@@ -131,4 +131,5 @@ std::vector<cuopt::remote::SendArrayChunkRequest> build_array_chunk_requests(
   const std::string& upload_id,
   int64_t chunk_size_bytes);
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

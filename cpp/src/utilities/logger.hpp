@@ -18,24 +18,24 @@
 #include <string>
 #include <vector>
 
-namespace cuopt {
+namespace CUOPT_EXPORT cuopt {
 
 /**
  * @brief Get the default logger.
  *
  * @return logger& The default logger
  */
-CUOPT_EXPORT rapids_logger::logger& default_logger();
+rapids_logger::logger& default_logger();
 
 /**
  * @brief Reset the default logger to the default settings.
  *  This is needed when we are running multiple tests and each test has different logger settings
  *  and we need to reset the logger to the default settings before each test.
  */
-CUOPT_EXPORT void reset_default_logger();
+void reset_default_logger();
 
 // Ref-counted logger initializer
-class CUOPT_EXPORT init_logger_t {
+class init_logger_t {
   // Using shared_ptr for ref-counting
   std::shared_ptr<void> guard_;
 
@@ -43,4 +43,4 @@ class CUOPT_EXPORT init_logger_t {
   init_logger_t(std::string log_file, bool log_to_console);
 };
 
-}  // namespace cuopt
+}  // namespace CUOPT_EXPORT cuopt

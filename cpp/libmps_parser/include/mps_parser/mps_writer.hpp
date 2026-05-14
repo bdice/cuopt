@@ -19,7 +19,8 @@
 #include <unordered_set>
 #include <vector>
 
-namespace cuopt::mps_parser {
+namespace cuopt {
+namespace MPS_PARSER_EXPORT mps_parser {
 
 /**
  * @brief Main writer class for MPS files
@@ -28,7 +29,7 @@ namespace cuopt::mps_parser {
  * @tparam i_t  data type of the indices
  */
 template <typename i_t, typename f_t>
-class MPS_PARSER_EXPORT mps_writer_t {
+class mps_writer_t {
  public:
   /**
    * @brief Ctor. Takes a data model view as input and writes it out as a MPS formatted file
@@ -61,4 +62,5 @@ class MPS_PARSER_EXPORT mps_writer_t {
   static data_model_view_t<i_t, f_t> create_view(const mps_data_model_t<i_t, f_t>& model);
 };  // class mps_writer_t
 
-}  // namespace cuopt::mps_parser
+}  // namespace MPS_PARSER_EXPORT mps_parser
+}  // namespace cuopt

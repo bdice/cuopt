@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 /**
  * @brief Reads a solution file and returns the values of specified variables
@@ -21,9 +22,10 @@ namespace cuopt::linear_programming {
  * @param variable_names Vector of variable names to extract values for
  * @return std::vector<double> Vector of values corresponding to the variable names
  */
-class CUOPT_EXPORT solution_reader_t {
+class solution_reader_t {
  public:
   static std::vector<double> get_variable_values_from_sol_file(
     const std::string& sol_file_path, const std::vector<std::string>& variable_names);
 };
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -16,7 +16,8 @@
 #include <type_traits>
 #include <vector>
 
-namespace cuopt::mps_parser {
+namespace cuopt {
+namespace MPS_PARSER_EXPORT mps_parser {
 
 /**
  * @brief A representation of a linear programming (LP) optimization problem
@@ -44,7 +45,7 @@ namespace cuopt::mps_parser {
  * please refeto to the `set_objective_scaling_factor()` and `set_objective_offset()` method.
  */
 template <typename i_t, typename f_t>
-class MPS_PARSER_EXPORT data_model_view_t {
+class data_model_view_t {
  public:
   static_assert(std::is_integral<i_t>::value,
                 "'data_model_view_t' accepts only integer types for indexes");
@@ -479,4 +480,5 @@ class MPS_PARSER_EXPORT data_model_view_t {
   std::vector<typename mps_data_model_t<i_t, f_t>::quadratic_constraint_t> quadratic_constraints_;
 };  // class data_model_view_t
 
-}  // namespace cuopt::mps_parser
+}  // namespace MPS_PARSER_EXPORT mps_parser
+}  // namespace cuopt

@@ -23,10 +23,11 @@
 #include <optional>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT solver_settings_t {
+class solver_settings_t {
  public:
   solver_settings_t();
 
@@ -110,4 +111,5 @@ class CUOPT_EXPORT solver_settings_t {
   std::vector<parameter_info_t<std::string>> string_parameters;
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

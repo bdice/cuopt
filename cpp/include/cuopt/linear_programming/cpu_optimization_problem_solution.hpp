@@ -19,7 +19,8 @@
 
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 /**
  * @brief CPU-backed LP solution (uses std::vector instead of rmm::device_uvector)
@@ -28,7 +29,7 @@ namespace cuopt::linear_programming {
  * Used for remote execution where GPU memory is not available.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
+class cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  public:
   // Bring base class overloads into scope to avoid hiding warnings
   using lp_solution_interface_t<i_t, f_t>::get_objective_value;
@@ -280,7 +281,7 @@ class CUOPT_EXPORT cpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> 
  * Used for remote execution where GPU memory is not available.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT cpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
+class cpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
  public:
   /**
    * @brief Construct an empty CPU MIP solution (for errors)
@@ -390,4 +391,5 @@ class CUOPT_EXPORT cpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t
   i_t num_simplex_iterations_;
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -22,7 +22,8 @@
 
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 struct benchmark_info_t {
   double last_improvement_of_best_feasible    = 0;
@@ -43,7 +44,7 @@ struct mip_solver_settings_accessor;
 }  // namespace detail
 
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT mip_solver_settings_t {
+class mip_solver_settings_t {
  public:
   mip_solver_settings_t() = default;
 
@@ -202,4 +203,5 @@ struct mip_solver_settings_accessor {
 
 }  // namespace detail
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -17,7 +17,8 @@
 #include <raft/core/copy.hpp>
 #include <rmm/cuda_stream_view.hpp>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 /**
  * @brief GPU-backed LP solution (wraps optimization_problem_solution_t)
@@ -26,7 +27,7 @@ namespace cuopt::linear_programming {
  * It implements the interface to allow polymorphism with CPU solutions.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
+class gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> {
  public:
   // Bring base class overloads into scope to avoid hiding warnings
   using lp_solution_interface_t<i_t, f_t>::get_objective_value;
@@ -383,7 +384,7 @@ class CUOPT_EXPORT gpu_lp_solution_t : public lp_solution_interface_t<i_t, f_t> 
  * It implements the interface to allow polymorphism with CPU solutions.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT gpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
+class gpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t> {
  public:
   /**
    * @brief Construct from existing mip_solution_t (move)
@@ -477,4 +478,5 @@ class CUOPT_EXPORT gpu_mip_solution_t : public mip_solution_interface_t<i_t, f_t
   mip_solution_t<i_t, f_t> solution_;
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

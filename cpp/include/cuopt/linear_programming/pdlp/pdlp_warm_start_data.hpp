@@ -13,14 +13,15 @@
 
 #include <span>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 template <typename i_t, typename f_t>
 struct pdlp_warm_start_data_view_t;
 
 // Holds everything necessary to warm start PDLP
 template <typename i_t, typename f_t>
-struct CUOPT_EXPORT pdlp_warm_start_data_t {
+struct pdlp_warm_start_data_t {
   rmm::device_uvector<f_t>
     current_primal_solution_;  // Can't just be pulled from solution object as we might return the
                                // average as solution while we want to continue on optimize on the
@@ -101,4 +102,5 @@ struct pdlp_warm_start_data_view_t {
   i_t iterations_since_last_restart_{-1};
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

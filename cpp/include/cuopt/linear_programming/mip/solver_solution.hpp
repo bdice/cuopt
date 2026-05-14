@@ -22,7 +22,8 @@
 #include <string>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 enum class mip_termination_status_t : int8_t {
   NoTermination         = CUOPT_TERMINATION_STATUS_NO_TERMINATION,
@@ -36,7 +37,7 @@ enum class mip_termination_status_t : int8_t {
 };
 
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT mip_solution_t : public base_solution_t {
+class mip_solution_t : public base_solution_t {
  public:
   mip_solution_t(rmm::device_uvector<f_t> solution,
                  std::vector<std::string> var_names,
@@ -93,4 +94,5 @@ class CUOPT_EXPORT mip_solution_t : public base_solution_t {
   std::vector<rmm::device_uvector<f_t>> solution_pool_;
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

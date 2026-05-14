@@ -9,7 +9,8 @@
 
 #include <cuopt/common/export.hpp>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 /**
  * @brief Enum for execution mode (local vs remote solve)
@@ -31,7 +32,7 @@ enum class memory_backend_t {
  * @brief Check if remote execution is enabled via environment variables
  * @return true if both CUOPT_REMOTE_HOST and CUOPT_REMOTE_PORT are set
  */
-CUOPT_EXPORT bool is_remote_execution_enabled();
+bool is_remote_execution_enabled();
 
 /**
  * @brief Determine execution mode based on environment variables
@@ -39,7 +40,7 @@ CUOPT_EXPORT bool is_remote_execution_enabled();
  * @return execution_mode_t::REMOTE if CUOPT_REMOTE_HOST and CUOPT_REMOTE_PORT are set,
  *         execution_mode_t::LOCAL otherwise
  */
-CUOPT_EXPORT execution_mode_t get_execution_mode();
+execution_mode_t get_execution_mode();
 
 /**
  * @brief Check if CPU memory should be used for local execution (test mode)
@@ -49,7 +50,7 @@ CUOPT_EXPORT execution_mode_t get_execution_mode();
  *
  * @return true if CUOPT_USE_CPU_MEM_FOR_LOCAL is set to "true" or "1" (case-insensitive)
  */
-CUOPT_EXPORT bool use_cpu_memory_for_local();
+bool use_cpu_memory_for_local();
 
 /**
  * @brief Determine which memory backend to use based on execution mode
@@ -61,6 +62,7 @@ CUOPT_EXPORT bool use_cpu_memory_for_local();
  *
  * @return memory_backend_t::GPU or memory_backend_t::CPU
  */
-CUOPT_EXPORT memory_backend_t get_memory_backend_type();
+memory_backend_t get_memory_backend_type();
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

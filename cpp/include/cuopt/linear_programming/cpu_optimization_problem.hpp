@@ -18,7 +18,8 @@
 #include <string>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // Forward declarations
 template <typename i_t, typename f_t>
@@ -40,7 +41,7 @@ class mip_solution_interface_t;
  * Device getters throw exceptions as GPU memory access is not supported.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT cpu_optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
+class cpu_optimization_problem_t : public optimization_problem_interface_t<i_t, f_t> {
  public:
   using typename optimization_problem_interface_t<i_t, f_t>::quadratic_constraint_t;
 
@@ -207,4 +208,5 @@ class CUOPT_EXPORT cpu_optimization_problem_t : public optimization_problem_inte
   std::vector<std::string> row_names_{};
 };
 
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -23,7 +23,8 @@
 #include <string>
 #include <vector>
 
-namespace cuopt::linear_programming {
+namespace cuopt {
+namespace CUOPT_EXPORT linear_programming {
 
 // Possible reasons for terminating
 enum class pdlp_termination_status_t : int8_t {
@@ -45,7 +46,7 @@ enum class pdlp_termination_status_t : int8_t {
  * @tparam f_t Floating point type. Currently only float (32bit) and double (64bit) are supported.
  */
 template <typename i_t, typename f_t>
-class CUOPT_EXPORT optimization_problem_solution_t : public base_solution_t {
+class optimization_problem_solution_t : public base_solution_t {
  public:
   bool is_mip() const override { return false; }
   /**
@@ -311,4 +312,5 @@ class CUOPT_EXPORT optimization_problem_solution_t : public base_solution_t {
   /** error struct */
   cuopt::logic_error error_status_;
 };
-}  // namespace cuopt::linear_programming
+}  // namespace CUOPT_EXPORT linear_programming
+}  // namespace cuopt

@@ -18,7 +18,8 @@
 #include <unordered_set>
 #include <vector>
 
-namespace cuopt::mps_parser {
+namespace cuopt {
+namespace MPS_PARSER_EXPORT mps_parser {
 
 /**
  * @brief Different possible types of 'ROWS'
@@ -63,7 +64,7 @@ enum ObjSenseType {
  *       `NAME -> ROWS -> COLUMNS -> RHS`
  */
 template <typename i_t, typename f_t>
-class MPS_PARSER_EXPORT mps_parser_t {
+class mps_parser_t {
  public:
   /**
    * @brief Ctor. Parses the MPS file and generates the internal representation
@@ -204,4 +205,5 @@ class MPS_PARSER_EXPORT mps_parser_t {
 
 };  // class mps_parser_t
 
-}  // namespace cuopt::mps_parser
+}  // namespace MPS_PARSER_EXPORT mps_parser
+}  // namespace cuopt
