@@ -1,11 +1,13 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
 
 #pragma once
+
+#include <cuopt/common/export.hpp>
 
 #include <raft/core/device_span.hpp>
 
@@ -14,7 +16,7 @@
 #include <string>
 #include <tuple>
 namespace cuopt {
-namespace routing {
+namespace CUOPT_EXPORT routing {
 /**
  * @brief Enumerated representation of supported objective function types
  *
@@ -121,5 +123,5 @@ class order_time_window_t {
 };
 
 }  // namespace detail
-}  // namespace routing
+}  // namespace CUOPT_EXPORT routing
 }  // namespace cuopt

@@ -1,12 +1,13 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
 
 #pragma once
 
+#include <cuopt/common/export.hpp>
 #include <cuopt/error.hpp>
 #include <cuopt/routing/routing_structures.hpp>
 #include <fstream>
@@ -16,7 +17,7 @@
 #include <vector>
 
 namespace cuopt {
-namespace routing {
+namespace CUOPT_EXPORT routing {
 
 /*! Routing assignment default strings */
 class solution_string_t {
@@ -264,5 +265,5 @@ struct host_assignment_t {
   std::vector<i_t> accepted{};
 };
 
-}  // namespace routing
+}  // namespace CUOPT_EXPORT routing
 }  // namespace cuopt
