@@ -250,15 +250,7 @@ inline size_t get_device_memory_size()
 
   auto res              = rmm::mr::get_current_device_resource_ref();
   auto limiting_adaptor = cuda::mr::resource_cast<rmm::mr::limiting_resource_adaptor>(&res);
-  if (limiting_adaptor) {
-    printf("limiting_adaptor->get_allocation_limit(): %fMiB\n",
-           limiting_adaptor->get_allocation_limit() / (double)1e6);
-    printf("used_mem: %fMiB\n", limiting_adaptor->get_allocated_bytes() / (double)1e6);
-    printf("free_mem: %fMiB\n",
-           (limiting_adaptor->get_allocation_limit() - limiting_adaptor->get_allocated_bytes()) /
-             (double)1e6);
-    return std::min(total_mem, limiting_adaptor->get_allocation_limit());
-  }
+  if (limiting_adaptor) { return std::min(total_mem, limiting_adaptor->get_allocation_limit()); }
 
   return total_mem;
 }
