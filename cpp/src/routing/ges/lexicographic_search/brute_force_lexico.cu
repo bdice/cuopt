@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -184,7 +184,7 @@ std::vector<i_t> guided_ejection_search_t<i_t, f_t, REQUEST>::brute_force_lexico
   auto stream          = sol.sol_handle->get_stream();
   i_t TPB              = 32;
   const i_t zero       = 0;
-  const auto value_max = std::numeric_limits<typename decltype(global_min_p_)::value_type>::max();
+  const auto value_max = std::numeric_limits<uint32_t>::max();
   sol.d_lock.set_value_async(zero, stream);
   rmm::device_uvector<i_t> global_sequence(2 * b_k_max + lexico_result_buffer_size, stream);
   rmm::device_scalar<uint32_t> global_min_p(value_max, stream);
