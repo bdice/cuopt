@@ -18,11 +18,23 @@ namespace cuopt::linear_programming {
 
 namespace detail {
 
+inline constexpr bool is_valid_public_var_type_code(char variable_type)
+{
+  return variable_type == 'C' || variable_type == 'I' || variable_type == 'S';
+}
+
 inline constexpr var_t char_to_var_type(char variable_type)
 {
   if (variable_type == 'I' || variable_type == 'B') { return var_t::INTEGER; }
   if (variable_type == 'S') { return var_t::SEMI_CONTINUOUS; }
   return var_t::CONTINUOUS;
+}
+
+inline constexpr char var_type_to_char(var_t variable_type)
+{
+  if (variable_type == var_t::INTEGER) { return 'I'; }
+  if (variable_type == var_t::SEMI_CONTINUOUS) { return 'S'; }
+  return 'C';
 }
 
 }  // namespace detail
@@ -73,6 +85,10 @@ void populate_from_mps_data_model(optimization_problem_interface_t<i_t, f_t>* pr
                                          n_nonzeros,
                                          A_offsets.data(),
                                          n_constraints + 1);
+    } else {
+      // Set empty constraint matrix
+      std::vector<i_t> offsets(1, 0);
+      problem->set_csr_constraint_matrix(nullptr, 0, nullptr, 0, offsets.data(), 1);
     }
   }
 
