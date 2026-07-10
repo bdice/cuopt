@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 #
@@ -18,6 +18,7 @@ set -e
 
 # Default values
 NAMESPACE="nim-service"
+# rapids-pre-commit-hooks: disable-next-line[verify-hardcoded-version]
 CUOPT_IMAGE_TAG="26.6.0-cu12"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 UNINSTALL=false
