@@ -9,7 +9,6 @@ metadata:
 spec:
   image:
     repository: nvcr.io/nvidia/cuopt/cuopt
-    # rapids-pre-commit-hooks: disable-next-line[verify-hardcoded-version]
     tag: "26.6.0-cu12"
     pullPolicy: IfNotPresent
     pullSecrets:
