@@ -39,7 +39,7 @@ rapids-pip-retry install \
     --prefer-binary \
     --constraint "${PIP_CONSTRAINT}" \
     "${LIBCUOPT_WHEELHOUSE}"/libcuopt*.whl
-python -c "import libcuopt; libcuopt.load_library()"
+python -c "import libcuopt; assert libcuopt.load_library() is not None"
 deactivate
 
 # notes:
