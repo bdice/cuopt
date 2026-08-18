@@ -6,7 +6,10 @@
       "CUDA": "12.9",
       "PYTHON_PACKAGE_MANAGER": "conda",
       "BASE": "rapidsai/devcontainers:26.10-cpp-mambaforge"
-    }
+    },
+    "cacheFrom": [
+      "ghcr.io/nvidia/cuopt/devcontainer:26.10-cuda12.9-conda"
+    ]
   },
   "runArgs": [
     "--rm",
