@@ -606,13 +606,13 @@ cusparse_view_t<i_t, f_t>::cusparse_view_t(
                                                     A_float_.data(),
                                                     op_problem_scaled.nnz,
                                                     double_to_float_functor{},
-                                                    handle_ptr->get_stream().value()));
+                                                    handle_ptr->get_stream().get()));
 
       RAFT_CUDA_TRY(cub::DeviceTransform::Transform(A_T_.data(),
                                                     A_T_float_.data(),
                                                     op_problem_scaled.nnz,
                                                     double_to_float_functor{},
-                                                    handle_ptr->get_stream().value()));
+                                                    handle_ptr->get_stream().get()));
 
       A_mixed_   = make_csr<i_t, float>(op_problem_scaled.n_constraints,
                                       op_problem_scaled.n_variables,
@@ -1072,15 +1072,15 @@ void cusparse_view_t<i_t, f_t>::update_mixed_precision_matrices()
                                                   A_float_.data(),
                                                   A_.size(),
                                                   double_to_float_functor{},
-                                                  handle_ptr_->get_stream().value()));
+                                                  handle_ptr_->get_stream().get()));
 
     RAFT_CUDA_TRY(cub::DeviceTransform::Transform(A_T_.data(),
                                                   A_T_float_.data(),
                                                   A_T_.size(),
                                                   double_to_float_functor{},
-                                                  handle_ptr_->get_stream().value()));
+                                                  handle_ptr_->get_stream().get()));
 
-    handle_ptr_->get_stream().synchronize();
+    handle_ptr_->get_stream().sync();
   }
 }
 

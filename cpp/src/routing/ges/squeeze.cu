@@ -141,7 +141,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::try_multiple_insert(i_t n_inser
 
   solution_ptr->compute_cost();
   solution_ptr->global_runtime_checks(false, false, "try_multiple_insert_end");
-  stream.synchronize();
+  stream.sync();
   return counter;
 }
 
@@ -321,7 +321,7 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::squeeze(
   execute_move<i_t, f_t><<<1, 1, 0, stream>>>(solution_ptr->view(), request, best_move.data());
   solution_ptr->compute_cost();
   solution_ptr->global_runtime_checks(false, false, "squeeze");
-  stream.synchronize();
+  stream.sync();
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>

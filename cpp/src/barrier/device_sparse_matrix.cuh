@@ -269,7 +269,7 @@ class device_csc_matrix_t {
                                   col_index.size(),
                                   stream);
     // Have to sync since InclusiveSum is being run on local data (d_temp_storage)
-    stream.synchronize();
+    stream.sync();
   }
 
   csc_view_t<i_t, f_t> view()

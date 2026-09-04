@@ -164,7 +164,7 @@ void local_search_t<i_t, f_t, REQUEST>::fill_gpu_graph(solution_t<i_t, f_t, REQU
   i_t n_blocks = solution.get_num_requests() + 1;
   fill_graph_kernel<i_t, f_t, REQUEST, TPB>
     <<<n_blocks, TPB, 0, stream>>>(solution.view(), move_candidates.view());
-  stream.synchronize();
+  stream.sync();
 }
 template void local_search_t<int, float, request_t::PDP>::fill_gpu_graph(
   solution_t<int, float, request_t::PDP>&);

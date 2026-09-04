@@ -383,7 +383,7 @@ void solution_t<i_t, f_t, REQUEST>::populate_ep_with_unserved(
   populate_ep_with_unserved_kernel<i_t, f_t, REQUEST, TPB>
     <<<1, TPB, 0, stream>>>(view(), EP.view(), ep_index_out.data());
   EP.index_ = ep_index_out.value(stream);
-  stream.synchronize();
+  stream.sync();
   if (EP.size() > 1) {
     thrust::default_random_engine g(problem_ptr->seed_gen.get_seed());
     thrust::shuffle(
@@ -408,7 +408,7 @@ void solution_t<i_t, f_t, REQUEST>::populate_ep_with_selected_unserved(
     view(), unserviced_view, EP.view(), ep_index_out.data(), problem_ptr->seed_gen.get_seed());
   RAFT_CHECK_CUDA(stream);
   EP.index_ = ep_index_out.value(stream);
-  stream.synchronize();
+  stream.sync();
 }
 
 template void solution_t<int, float, request_t::PDP>::eject_until_feasible(bool);

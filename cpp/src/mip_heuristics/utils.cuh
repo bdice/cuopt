@@ -333,7 +333,7 @@ static __global__ void run_lambda_kernel(F f)
 template <typename Func>
 static void inline run_device_lambda(const rmm::cuda_stream_view& stream, Func f)
 {
-  run_lambda_kernel<<<1, 1, 0, stream.value()>>>(f);
+  run_lambda_kernel<<<1, 1, 0, stream.get()>>>(f);
 }
 
 template <typename f_t>

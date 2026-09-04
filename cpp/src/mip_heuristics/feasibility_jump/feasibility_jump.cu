@@ -455,7 +455,7 @@ void fj_t<i_t, f_t>::climber_init(i_t climber_idx, const rmm::cuda_stream_view& 
     f_t excess = climber->violation_score.value(climber_stream);
     climber->best_excess.set_value_async(excess, climber_stream);
   }
-  climber_stream.synchronize();
+  climber_stream.sync();
 
   climber->break_condition.set_value_to_zero_async(climber_stream);
   climber->temp_break_condition.set_value_to_zero_async(climber_stream);
@@ -471,9 +471,9 @@ void fj_t<i_t, f_t>::climber_init(i_t climber_idx, const rmm::cuda_stream_view& 
   climber->iterations_until_feasible_counter.set_value_to_zero_async(climber_stream);
   climber->small_move_tabu.set_value_to_zero_async(climber_stream);
 
-  climber_stream.synchronize();
+  climber_stream.sync();
 
-  climber_stream.synchronize();
+  climber_stream.sync();
 
   view = climber->view();
 

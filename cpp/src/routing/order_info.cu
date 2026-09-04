@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -36,9 +36,9 @@ void populate_time_windows(data_model_view_t<i_t, f_t> const& data_model,
     raft::copy(order_info_.v_earliest_time_.data(),
                earliest,
                order_info_.get_num_orders(),
-               stream_view.value());
+               stream_view.get());
     raft::copy(
-      order_info_.v_latest_time_.data(), latest, order_info_.get_num_orders(), stream_view.value());
+      order_info_.v_latest_time_.data(), latest, order_info_.get_num_orders(), stream_view.get());
   } else {
     // subtract -1 to ensure that we can set max values for service times
     // in vehicle order match

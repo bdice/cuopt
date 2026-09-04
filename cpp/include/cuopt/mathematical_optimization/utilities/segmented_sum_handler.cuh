@@ -51,9 +51,9 @@ struct segmented_sum_handler_t {
                                        problem_size,
                                        reduction_op,
                                        initial_value,
-                                       stream_view_.value());
+                                       stream_view_.get());
 
-    segmented_sum_storage_.resize(byte_needed_, stream_view_.value());
+    segmented_sum_storage_.resize(byte_needed_, stream_view_.get());
 
     cub::DeviceSegmentedReduce::Reduce(segmented_sum_storage_.data(),
                                        byte_needed_,
@@ -63,7 +63,7 @@ struct segmented_sum_handler_t {
                                        problem_size,
                                        reduction_op,
                                        initial_value,
-                                       stream_view_.value());
+                                       stream_view_.get());
   }
 
   size_t byte_needed_;

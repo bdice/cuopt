@@ -774,7 +774,7 @@ void convergence_information_t<i_t, f_t>::compute_primal_residual(
                 raft::max(dual, f_t(0.0)) * finite_or_zero(lower) +
                   raft::min(dual, f_t(0.0)) * finite_or_zero(upper)};
       },
-      stream_view_.value());
+      stream_view_.get());
   }
 
 #ifdef PDLP_DEBUG_MODE
@@ -922,7 +922,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_residual(
                                     dual_residual_.data(),
                                     dual_residual_.size(),
                                     cuda::std::minus<>{},
-                                    stream_view_.value());
+                                    stream_view_.get());
   } else {
     cuopt_expects(!batch_mode_,
                   error_type_t::ValidationError,
@@ -1084,7 +1084,7 @@ void convergence_information_t<i_t, f_t>::compute_reduced_cost_from_primal_gradi
     bound_value_.data(),
     primal_size_h_,
     bound_value_gradient<f_t, f_t2>(),
-    stream_view_.value());
+    stream_view_.get());
 
   if (hyper_params_.handle_some_primal_gradients_on_finite_bounds_as_residuals) {
     raft::linalg::ternaryOp(reduced_cost_.data(),
@@ -1117,7 +1117,7 @@ void convergence_information_t<i_t, f_t>::compute_reduced_costs_dual_objective_c
     bound_value_.data(),
     primal_size_h_,
     bound_value_reduced_cost_product<f_t, f_t2>(),
-    stream_view_.value());
+    stream_view_.get());
 
   // sum over bound_value*reduced_cost, but should be -inf if any element is -inf
   cub::DeviceReduce::Sum(rmm_tmp_buffer_.data(),

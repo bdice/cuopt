@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2021-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2021-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -230,7 +230,7 @@ void solution_t<i_t, f_t, REQUEST>::set_initial_nodes(const rmm::device_uvector<
   set_initial_nodes_kernel<i_t, f_t, REQUEST>
     <<<n_blocks, TPB, 0, sol_handle->get_stream()>>>(view(), problem_ptr->view(), d_indices.data());
 
-  sol_handle->get_stream().synchronize();
+  sol_handle->get_stream().sync();
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>

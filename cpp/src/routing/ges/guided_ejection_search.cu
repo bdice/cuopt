@@ -522,9 +522,9 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::route_minimizer_loop()
     std::tie(vehicle_id, random_route_id) = next_route_id();
     if (random_route_id < 0) { break; }
     // Save solution state before ges loop in case of route restoration
-    stream.synchronize();
+    stream.sync();
     ges_loop_save_state.copy_device_solution(*solution_ptr);
-    stream.synchronize();
+    stream.sync();
     solution_ptr->remove_routes(EP, std::vector<i_t>{random_route_id});
 
     // Routes can be empty when number of vehicles is more than number of requests
@@ -532,9 +532,9 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::route_minimizer_loop()
 
     // If ges loop left early, restore state
     if (!guided_ejection_search_loop(counter, true)) {
-      stream.synchronize();
+      stream.sync();
       solution_ptr->copy_device_solution(ges_loop_save_state);
-      stream.synchronize();
+      stream.sync();
     }
     solution_ptr->global_runtime_checks(true, true, "route_minimizer_loop");
   }

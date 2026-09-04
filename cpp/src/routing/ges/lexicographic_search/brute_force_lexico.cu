@@ -219,7 +219,7 @@ std::vector<i_t> guided_ejection_search_t<i_t, f_t, REQUEST>::brute_force_lexico
     std::vector<i_t> sequence(global_sequence.element(0, stream) + 3);
     // copy including pickup and delivery
     raft::copy(sequence.data(), global_sequence.data() + 1, sequence.size(), stream);
-    stream.synchronize();
+    stream.sync();
     return sequence;
   }
   return std::vector<i_t>{};

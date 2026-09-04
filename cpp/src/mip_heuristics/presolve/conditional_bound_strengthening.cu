@@ -215,7 +215,7 @@ void spgemm_cusparse([[maybe_unused]] rmm::device_uvector<i_t>& offsetsA,
 
   check_cusparse_status(cusparseSpGEMM_copy(
     handle, opA, opB, &alpha, matA, matB, &beta, matC, computeType, alg, spgemmDesc));
-  stream.synchronize();
+  stream.sync();
 
   cusparseSpGEMM_destroyDescr(spgemmDesc);
   cusparseDestroySpMat(matA);

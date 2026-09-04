@@ -1990,7 +1990,7 @@ void pdlp_restart_strategy_t<i_t, f_t>::solve_bound_constrained_trust_region(
       thrust::make_zip_iterator(thrust::make_tuple(lower_bound_.data(), upper_bound_.data())),
       primal_size_h_,
       extract_bounds_t<f_t, f_t2>(),
-      stream_view_.value());
+      stream_view_.get());
     raft::copy(lower_bound_.data() + primal_size_h_,
                transformed_constraint_lower_bounds_.data(),
                dual_size_h_,
@@ -2174,7 +2174,7 @@ void pdlp_restart_strategy_t<i_t, f_t>::solve_bound_constrained_trust_region(
                                     duality_gap.primal_solution_tr_.data(),
                                     primal_size_h_,
                                     clamp<f_t, f_t2>(),
-                                    stream_view_.value());
+                                    stream_view_.get());
 
     // project by max(min(y[i], upperbound[i]),lowerbound[i])
     raft::linalg::ternaryOp(duality_gap.dual_solution_tr_.data(),

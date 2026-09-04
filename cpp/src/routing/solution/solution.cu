@@ -323,7 +323,7 @@ void solution_t<i_t, f_t, REQUEST>::random_init_routes()
 {
   raft::common::nvtx::range fun_scope("random_init_routes");
   auto stream = sol_handle->get_stream();
-  stream.synchronize();
+  stream.sync();
   const i_t one = 1;
   d_sol_found.set_value_async(one, stream);
   std::vector<i_t> indices(get_num_requests());
@@ -343,7 +343,7 @@ void solution_t<i_t, f_t, REQUEST>::random_init_routes()
     }
   }
   set_initial_nodes(d_indices, n_routes);
-  stream.synchronize();
+  stream.sync();
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>

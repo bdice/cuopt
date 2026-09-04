@@ -1543,7 +1543,7 @@ rmm::device_uvector<To> gpu_cast(const rmm::device_uvector<From>& src, rmm::cuda
   rmm::device_uvector<To> dst(src.size(), stream);
   if (src.size() > 0) {
     RAFT_CUDA_TRY(cub::DeviceTransform::Transform(
-      src.data(), dst.data(), src.size(), cast_op<From, To>{}, stream.value()));
+      src.data(), dst.data(), src.size(), cast_op<From, To>{}, stream.get()));
   }
   return dst;
 }

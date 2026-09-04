@@ -2747,7 +2747,7 @@ optimization_problem_solution_t<i_t, f_t> pdlp_solver_t<i_t, f_t>::run_solver(co
           pdhg_solver_.get_primal_solution().data(),
           pdhg_solver_.get_primal_solution().size(),
           clamp<f_t, f_t2>(),
-          stream_view_.value());
+          stream_view_.get());
       } else {
         cub::DeviceTransform::Transform(
           cuda::std::make_tuple(pdhg_solver_.get_primal_solution().data(),
@@ -2755,7 +2755,7 @@ optimization_problem_solution_t<i_t, f_t> pdlp_solver_t<i_t, f_t>::run_solver(co
           pdhg_solver_.get_primal_solution().data(),
           pdhg_solver_.get_primal_solution().size(),
           clamp<f_t, f_t2>(),
-          stream_view_.value());
+          stream_view_.get());
       }
 
       pdhg_solver_.refine_initial_primal_projection(
@@ -2771,7 +2771,7 @@ optimization_problem_solution_t<i_t, f_t> pdlp_solver_t<i_t, f_t>::run_solver(co
           unscaled_primal_avg_solution_.data(),
           primal_size_h_,
           clamp<f_t, f_t2>(),
-          stream_view_.value());
+          stream_view_.get());
       }
     }
 
@@ -3191,7 +3191,7 @@ void pdlp_solver_t<i_t, f_t>::halpern_update()
                             (f_t(1.0) - reflection_coefficient) * current_primal;
       return weight * reflected + (f_t(1.0) - weight) * initial_primal;
     },
-    stream_view_.value());
+    stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
   print("pdhg_solver_.get_reflected_dual()", pdhg_solver_.get_reflected_dual());
@@ -3215,7 +3215,7 @@ void pdlp_solver_t<i_t, f_t>::halpern_update()
                             (f_t(1.0) - reflection_coefficient) * current_dual;
       return weight * reflected + (f_t(1.0) - weight) * initial_dual;
     },
-    stream_view_.value());
+    stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
   print("halpen_update current primal",
@@ -3384,7 +3384,7 @@ void pdlp_solver_t<i_t, f_t>::compute_initial_step_size()
                                       d_q.data(),
                                       d_q.size(),
                                       divide_by_device_scalar_t<f_t>{norm_q.data()},
-                                      stream_view_.value());
+                                      stream_view_.get());
 
       // A_t_q = A_t @ d_q
       RAFT_CUSPARSE_TRY(
@@ -3397,7 +3397,7 @@ void pdlp_solver_t<i_t, f_t>::compute_initial_step_size()
                                            vecATQ,
                                            CUSPARSE_SPMV_CSR_ALG2,
                                            (f_t*)cusparse_view_.buffer_transpose.data(),
-                                           stream_view_.value()));
+                                           stream_view_.get()));
 
       // z = A @ A_t_q
       RAFT_CUSPARSE_TRY(
@@ -3410,7 +3410,7 @@ void pdlp_solver_t<i_t, f_t>::compute_initial_step_size()
                                            vecZ,
                                            CUSPARSE_SPMV_CSR_ALG2,
                                            (f_t*)cusparse_view_.buffer_non_transpose.data(),
-                                           stream_view_.value()));
+                                           stream_view_.get()));
       // sigma_max_sq = dot(q, z)
       RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(handle_ptr_->get_cublas_handle(),
                                                       m,
@@ -3419,14 +3419,14 @@ void pdlp_solver_t<i_t, f_t>::compute_initial_step_size()
                                                       d_z.data(),
                                                       primal_stride,
                                                       sigma_max_sq.data(),
-                                                      stream_view_.value()));
+                                                      stream_view_.get()));
 
       // d_q := -sigma_max_sq * d_q + d_z
       cub::DeviceTransform::Transform(cuda::std::make_tuple(d_q.data(), d_z.data()),
                                       d_q.data(),
                                       d_q.size(),
                                       residual_fma_neg_scalar_t<f_t>{sigma_max_sq.data()},
-                                      stream_view_.value());
+                                      stream_view_.get());
 
       my_l2_norm<i_t, f_t>(d_q, residual_norm, handle_ptr_);
 

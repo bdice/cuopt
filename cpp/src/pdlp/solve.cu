@@ -2358,7 +2358,7 @@ cuopt::mathematical_optimization::io::mps_data_model_t<i_t, f_t> op_problem_to_m
   raft::copy(h_constr_lb.data(), d_constr_lb.data(), d_constr_lb.size(), stream);
   raft::copy(h_constr_ub.data(), d_constr_ub.data(), d_constr_ub.size(), stream);
   raft::copy(h_var_types_enum.data(), d_var_types.data(), d_var_types.size(), stream);
-  stream.synchronize();
+  stream.sync();
 
   if (!h_offsets.empty()) {
     mps.set_csr_constraint_matrix(

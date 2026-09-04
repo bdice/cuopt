@@ -445,7 +445,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_dual_solution(rmm::device_uvector<f_t
                               current_saddle_point_state_.get_delta_dual().data()),
     dual_size_h_,
     dual_projection<f_t>(dual_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -460,7 +460,7 @@ void pdhg_solver_t<i_t, f_t>::spmvop_At_y()
                         cusparse_view_.dual_solution.get(),
                         cusparse_view_.current_AtY.get(),
                         cusparse_view_.current_AtY.get(),
-                        stream_view_.value());
+                        stream_view_.get());
     return;
   }
 #endif
@@ -488,7 +488,7 @@ void pdhg_solver_t<i_t, f_t>::spmvop_A_x()
                         cusparse_view_.reflected_primal_solution.get(),
                         cusparse_view_.dual_gradient.get(),
                         cusparse_view_.dual_gradient.get(),
-                        stream_view_.value());
+                        stream_view_.get());
     return;
   }
 #endif
@@ -678,7 +678,7 @@ void pdhg_solver_t<i_t, f_t>::compute_primal_projection_with_gradient(
                               tmp_primal_.data()),
     primal_size_h_,
     primal_projection<f_t, f_t2>(primal_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -764,7 +764,7 @@ void pdhg_solver_t<i_t, f_t>::primal_reflected_major_projection_transform(
       potential_next_primal_solution_.data(), dual_slack_.data(), reflected_primal_.data()),
     primal_size_h_,
     primal_reflected_major_projection<f_t>(primal_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename f_t>
@@ -807,7 +807,7 @@ void pdhg_solver_t<i_t, f_t>::primal_reflected_projection_transform(
     reflected_primal_.data(),
     primal_size_h_,
     primal_reflected_projection<f_t>(primal_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename f_t>
@@ -851,7 +851,7 @@ void pdhg_solver_t<i_t, f_t>::dual_reflected_major_projection_transform(
     thrust::make_zip_iterator(potential_next_dual_solution_.data(), reflected_dual_.data()),
     dual_size_h_,
     dual_reflected_major_projection<f_t>(dual_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename f_t>
@@ -894,7 +894,7 @@ void pdhg_solver_t<i_t, f_t>::dual_reflected_projection_transform(
     reflected_dual_.data(),
     dual_size_h_,
     dual_reflected_projection<f_t>(dual_step_size.data()),
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename f_t>
@@ -1217,7 +1217,7 @@ void pdhg_solver_t<i_t, f_t>::refine_initial_primal_projection(
                          make_span(bound_rescaling),
                          make_span(current_saddle_point_state_.get_primal_solution()),
                          problem_ptr->n_variables},
-                       stream_view_.value());
+                       stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -1265,7 +1265,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             reflected_primal_.data(),
             batch_size_divisor_,
             problem_ptr->objective_coefficients.size() > static_cast<size_t>(primal_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
       if (new_bounds_idx_.size() != 0) {
 #ifdef CUPDLP_DEBUG_MODE
@@ -1297,7 +1297,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             make_span(reflected_primal_),
             (int)climber_strategies_.size(),
             problem_ptr->objective_coefficients.size() > static_cast<size_t>(primal_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
 #ifdef CUPDLP_DEBUG_MODE
       print("potential_next_primal_solution_", potential_next_primal_solution_);
@@ -1329,7 +1329,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             reflected_dual_.data(),
             batch_size_divisor_,
             problem_ptr->constraint_lower_bounds.size() > static_cast<size_t>(dual_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
 
 #ifdef CUPDLP_DEBUG_MODE
@@ -1380,7 +1380,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             reflected_primal_.data(),
             (int)climber_strategies_.size(),
             problem_ptr->objective_coefficients.size() > static_cast<size_t>(primal_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
       if (new_bounds_idx_.size() != 0) {
 #ifdef CUPDLP_DEBUG_MODE
@@ -1410,7 +1410,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             make_span(reflected_primal_),
             (int)climber_strategies_.size(),
             problem_ptr->objective_coefficients.size() > static_cast<size_t>(primal_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
 #ifdef CUPDLP_DEBUG_MODE
       print("reflected_primal_", reflected_primal_);
@@ -1445,7 +1445,7 @@ void pdhg_solver_t<i_t, f_t>::compute_next_primal_dual_solution_reflected(
             reflected_dual_.data(),
             (int)climber_strategies_.size(),
             problem_ptr->constraint_lower_bounds.size() > static_cast<size_t>(dual_size_h_)},
-          stream_view_.value());
+          stream_view_.get());
       }
 #ifdef CUPDLP_DEBUG_MODE
       print("reflected_dual_", reflected_dual_);

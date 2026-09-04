@@ -583,7 +583,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_cummulative_scaling_to_pro
     op_problem_scaled_.variable_bounds.data(),
     op_problem_scaled_.variable_bounds.size(),
     divide_check_zero<f_t, f_t2>(),
-    stream_view_.value());
+    stream_view_.get());
 
   if (pdhg_solver_ptr_ && pdhg_solver_ptr_->get_new_bounds_idx().size() != 0) {
     cub::DeviceTransform::Transform(
@@ -662,7 +662,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_bound_objective_rescaling_
                   f_t bound_rescaling) -> thrust::tuple<f_t, f_t> {
       return {constraint_lower_bound * bound_rescaling, constraint_upper_bound * bound_rescaling};
     },
-    stream_view_.value());
+    stream_view_.get());
 
   // In batch mode we don't scale the variable bounds (here) because they are shared across
   // climbers. While the variable bounds are the same across climbers, there can be different
@@ -688,7 +688,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_bound_objective_rescaling_
     op_problem_scaled_.objective_coefficients.data(),
     op_problem_scaled_.objective_coefficients.size(),
     cuda::std::multiplies<f_t>{},
-    stream_view_.value());
+    stream_view_.get());
 }
 
 template <typename i_t, typename f_t>

@@ -139,7 +139,7 @@ template <typename f_t>
   f_t* a, f_t* b, f_t* out, int size, rmm::cuda_stream_view stream)
 {
   cub::DeviceTransform::Transform(
-    cuda::std::make_tuple(a, b), out, size, cuda::std::multiplies<>{}, stream.value());
+    cuda::std::make_tuple(a, b), out, size, cuda::std::multiplies<>{}, stream.get());
 }
 
 // out[i] = is_direct_free_linear[i] ? 0 : a[i] * b[i]
@@ -152,7 +152,7 @@ template <typename f_t>
     out,
     size,
     [] __host__ __device__(f_t x_j, f_t d_j, int free_j) { return free_j ? f_t{0} : x_j * d_j; },
-    stream.value());
+    stream.get());
 }
 
 template <typename f_t>
@@ -164,7 +164,7 @@ template <typename f_t>
     out,
     size,
     [alpha, beta] __host__ __device__(f_t a, f_t b) { return alpha * a + beta * b; },
-    stream.value());
+    stream.get());
 }
 
 // Step size computation for nonnegative and free variables. Fuses two independent
@@ -224,7 +224,7 @@ static void recover_linear_orthant_dz(raft::device_span<const f_t> target,
       if (is_direct_free) return f_t(0);
       return target_val - (z_val * dx_val) / x_val;
     },
-    stream.value());
+    stream.get());
   RAFT_CHECK_CUDA(stream);
 }
 
@@ -235,7 +235,7 @@ static void negate_complementarity_rhs(raft::device_span<f_t> out,
 {
   if (out.empty()) return;
   cub::DeviceTransform::Transform(
-    residual.data(), out.data(), out.size(), [] HD(f_t rhs) { return -rhs; }, stream.value());
+    residual.data(), out.data(), out.size(), [] HD(f_t rhs) { return -rhs; }, stream.get());
 }
 
 template <typename i_t, typename f_t>
@@ -254,7 +254,7 @@ static void fill_linear_cc_rhs(raft::device_span<f_t> out,
     [new_mu] HD(f_t dx_aff_val, f_t dz_aff_val, i_t is_direct_free_linear) {
       return is_direct_free_linear ? f_t(0) : (-(dx_aff_val * dz_aff_val) + new_mu);
     },
-    stream.value());
+    stream.get());
   RAFT_CHECK_CUDA(stream);
 }
 
@@ -1539,7 +1539,7 @@ class iteration_data_t {
       return chol->solve(d_b, d_x);
     } else {
       raft::copy(inv_diag.data(), d_inv_diag.data(), d_inv_diag.size(), stream_view_);
-      stream_view_.synchronize();
+      stream_view_.sync();
       dense_vector_t<i_t, f_t> b = host_copy(d_b, stream_view_);
       dense_vector_t<i_t, f_t> x = host_copy(d_x, stream_view_);
 
@@ -1549,7 +1549,7 @@ class iteration_data_t {
       raft::copy(d_b.data(), b.data(), b.size(), stream_view_);
       d_x.resize(x.size(), stream_view_);
       raft::copy(d_x.data(), x.data(), x.size(), stream_view_);
-      stream_view_.synchronize();  // host x can go out of scope before copy finishes
+      stream_view_.sync();  // host x can go out of scope before copy finishes
 
       return out;
     }
@@ -1917,7 +1917,7 @@ class iteration_data_t {
                                     u.data(),
                                     u.size(),
                                     cuda::std::multiplies<>{},
-                                    stream_view_.value());
+                                    stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
 
     // y = alpha * A * w + beta * v = alpha * A * Dinv * A^T * y + beta * v
@@ -1939,7 +1939,7 @@ class iteration_data_t {
                                     u.data(),
                                     u.size(),
                                     cuda::std::multiplies<>{},
-                                    stream_view_.value());
+                                    stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
     cusparse_view_.spmv(alpha, u, beta, v);
   }
@@ -2542,7 +2542,7 @@ int barrier_solver_t<i_t, f_t>::initial_point(iteration_data_t<i_t, f_t>& data)
     // x = Dinv*(F*u - A'*q)
     // Fu <- -1.0 * A' * q + 1.0 * Fu
     data.cusparse_view_.transpose_spmv(-1.0, q, 1.0, Fu);
-    data.handle_ptr->get_stream().synchronize();
+    data.handle_ptr->get_stream().sync();
 
     // x <- Dinv * (F*u - A'*q)
     data.inv_diag.pairwise_product(Fu, data.x);
@@ -2560,7 +2560,7 @@ int barrier_solver_t<i_t, f_t>::initial_point(iteration_data_t<i_t, f_t>& data)
   dense_vector_t<i_t, f_t> init_primal_residual(lp.num_rows);
   init_primal_residual = lp.rhs;
   data.cusparse_view_.spmv(1.0, data.x, -1.0, init_primal_residual);
-  data.handle_ptr->get_stream().synchronize();
+  data.handle_ptr->get_stream().sync();
 #ifdef PRINT_INFO
   settings.log.printf("||b - A * x||: %.16e\n", vector_norm2<i_t, f_t>(init_primal_residual));
 #endif
@@ -2748,7 +2748,7 @@ void barrier_solver_t<i_t, f_t>::gpu_compute_residuals(const rmm::device_uvector
       data.d_bound_residual_.data(),
       data.d_upper_bounds_.size(),
       [] HD(f_t upper_j, f_t w_k, f_t x_j) { return upper_j - w_k - x_j; },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
   }
 
@@ -2757,7 +2757,7 @@ void barrier_solver_t<i_t, f_t>::gpu_compute_residuals(const rmm::device_uvector
                                   data.d_dual_residual_.data(),
                                   data.d_dual_residual_.size(),
                                   cuda::std::minus<>{},
-                                  stream_view_.value());
+                                  stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   auto descr_dual_residual = data.cusparse_view_.create_vector(data.d_dual_residual_);
   if (data.Q.n > 0) {
@@ -2775,7 +2775,7 @@ void barrier_solver_t<i_t, f_t>::gpu_compute_residuals(const rmm::device_uvector
       thrust::make_permutation_iterator(data.d_dual_residual_.data(), data.d_upper_bounds_.data()),
       data.d_upper_bounds_.size(),
       [] HD(f_t dual_residual_j, f_t v_k) { return dual_residual_j + v_k; },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
   }
 
@@ -2784,14 +2784,14 @@ void barrier_solver_t<i_t, f_t>::gpu_compute_residuals(const rmm::device_uvector
                                   data.d_complementarity_xz_residual_.data(),
                                   data.d_complementarity_xz_residual_.size(),
                                   cuda::std::multiplies<>{},
-                                  stream_view_.value());
+                                  stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   // Compute complementarity_wv_residual = w.*v
   cub::DeviceTransform::Transform(cuda::std::make_tuple(d_w.data(), d_v.data()),
                                   data.d_complementarity_wv_residual_.data(),
                                   data.d_complementarity_wv_residual_.size(),
                                   cuda::std::multiplies<>{},
-                                  stream_view_.value());
+                                  stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
 }
 
@@ -2893,13 +2893,13 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
           constexpr f_t free_var_reg = 1e-7;
           return is_direct_free_linear ? free_var_reg : (z_j / x_j);
         },
-        stream_view_.value());
+        stream_view_.get());
     } else {
       cub::DeviceTransform::Transform(cuda::std::make_tuple(data.d_z_.data(), data.d_x_.data()),
                                       data.d_diag_.data(),
                                       linear_size,
                                       cuda::std::divides<>{},
-                                      stream_view_.value());
+                                      stream_view_.get());
     }
     RAFT_CHECK_CUDA(stream_view_);
 
@@ -2913,7 +2913,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         thrust::make_permutation_iterator(data.d_diag_.data(), data.d_upper_bounds_.data()),
         data.d_upper_bounds_.size(),
         [] HD(f_t v_k, f_t w_k, f_t diag_j) { return diag_j + (v_k / w_k); },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
     }
 
@@ -2926,7 +2926,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
           data.d_diag_.data(),
           data.d_diag_.size(),
           [] HD(f_t Q_diag_j, f_t diag_j) { return diag_j + Q_diag_j; },
-          stream_view_.value());
+          stream_view_.get());
         RAFT_CHECK_CUDA(stream_view_);
 
         cub::DeviceTransform::Transform(
@@ -2938,7 +2938,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
             if (!is_direct_free_linear || q_jj > f_t(0)) return diag_j;
             return diag_j + free_var_reg;
           },
-          stream_view_.value());
+          stream_view_.get());
       } else {
         cub::DeviceTransform::Transform(
           cuda::std::make_tuple(data.d_diag_.data(), data.d_is_direct_free_linear_.data()),
@@ -2947,7 +2947,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
           [free_var_reg] HD(f_t diag_j, i_t is_direct_free_linear) {
             return is_direct_free_linear ? (diag_j + free_var_reg) : diag_j;
           },
-          stream_view_.value());
+          stream_view_.get());
       }
       RAFT_CHECK_CUDA(stream_view_);
 
@@ -2957,7 +2957,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         data.d_inv_diag.data(),
         data.d_diag_.size(),
         [] HD(f_t diag) { return f_t(1) / diag; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
     }
   }
@@ -3036,7 +3036,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         [] HD(f_t bound_rhs, f_t v, f_t complementarity_wv_rhs, f_t w) {
           return (complementarity_wv_rhs - v * bound_rhs) / w;
         },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
     }
     cub::DeviceTransform::Transform(
@@ -3050,7 +3050,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         const f_t comp_term = is_direct_free_linear ? f_t(0) : target;
         return tmp3 + dual_rhs - comp_term;
       },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
     raft::copy(data.d_r1_.data(), data.d_tmp3_.data(), data.d_tmp3_.size(), stream_view_);
     raft::copy(data.d_r1_prime_.data(), data.d_tmp3_.data(), data.d_tmp3_.size(), stream_view_);
@@ -3144,7 +3144,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         data.d_tmp4_.data(),
         lp.num_cols,
         [] HD(f_t inv_diag, f_t tmp3) { return inv_diag * tmp3; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
       data.cusparse_view_.spmv(1, data.cusparse_tmp4_.get(), 1, data.cusparse_h_.get());
     }
@@ -3243,7 +3243,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
           const f_t dx = inv_diag * r1;
           return {dx, dx * diag};
         },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
 
       data.cusparse_view_.transpose_spmv(
@@ -3253,7 +3253,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         data.d_dx_residual_.data(),
         data.d_dx_residual_.size(),
         [] HD(f_t dx_residual, f_t r1_prime) { return dx_residual + r1_prime; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
     }
 
@@ -3299,7 +3299,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         d_dx_residual_5.data(),
         d_dx_residual_5.size(),
         [] HD(f_t ind_diag, f_t r1) { return ind_diag * r1; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
       // TMP should be done just one in the constructor
       data.cusparse_dx_residual_5_ = data.cusparse_view_.create_vector(d_dx_residual_5);
@@ -3331,7 +3331,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         d_dx_residual_3.data(),
         d_dx_residual_3.size(),
         [] HD(f_t ind_diag, f_t r1_prime) { return ind_diag * r1_prime; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
       // TMP vector creation should only be done once
       data.cusparse_dx_residual_3_ = data.cusparse_view_.create_vector(d_dx_residual_3);
@@ -3438,7 +3438,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         [] HD(f_t complementarity_xz_rhs, f_t z_val, f_t dz_val, f_t dx_val, f_t x_val) {
           return z_val * dx_val + x_val * dz_val - complementarity_xz_rhs;
         },
-        stream_view_.value());
+        stream_view_.get());
     };
     compute_linear_xz_residual(
       raft::device_span<f_t>(data.d_xz_residual_.data(), linear_size),
@@ -3470,7 +3470,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       [] HD(f_t v, f_t gathered_dx, f_t bound_rhs, f_t complementarity_wv_rhs, f_t w) {
         return (v * gathered_dx - bound_rhs * v + complementarity_wv_rhs) / w;
       },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
   }
 
@@ -3493,7 +3493,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       [] HD(f_t v, f_t gathered_dx, f_t dv, f_t bound_rhs, f_t complementarity_wv_rhs, f_t w) {
         return -v * gathered_dx + w * dv - complementarity_wv_rhs + v * bound_rhs;
       },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
     const f_t dv_residual_norm = device_vector_norm_inf<i_t, f_t>(d_dv_residual, stream_view_);
     max_residual               = std::max(max_residual, dv_residual_norm);
@@ -3531,7 +3531,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       data.d_dual_residual_.data(),
       data.d_dual_residual_.size(),
       [] HD(f_t dual_residual, f_t dz, f_t dual_rhs) { return dual_residual + dz - dual_rhs; },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
     const f_t dual_residual_norm =
       device_vector_norm_inf<i_t, f_t>(data.d_dual_residual_, stream_view_);
@@ -3552,7 +3552,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       data.d_dw_.data(),
       data.d_dw_.size(),
       [] HD(f_t dw, f_t gathered_dx) { return dw - gathered_dx; },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
 
     if (debug) {
@@ -3566,7 +3566,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
         data.d_dw_residual_.data(),
         data.d_dw_residual_.size(),
         [] HD(f_t dw, f_t gathered_dx, f_t bound_rhs) { return dw + gathered_dx - bound_rhs; },
-        stream_view_.value());
+        stream_view_.get());
       RAFT_CHECK_CUDA(stream_view_);
       const f_t dw_residual_norm =
         device_vector_norm_inf<i_t, f_t>(data.d_dw_residual_, stream_view_);
@@ -3592,7 +3592,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       [] HD(f_t complementarity_wv_rhs, f_t w, f_t v, f_t dw, f_t dv) {
         return v * dw + w * dv - complementarity_wv_rhs;
       },
-      stream_view_.value());
+      stream_view_.get());
     RAFT_CHECK_CUDA(stream_view_);
     const f_t wv_residual_norm =
       device_vector_norm_inf<i_t, f_t>(data.d_wv_residual_, stream_view_);
@@ -3621,7 +3621,7 @@ void fill_linear_complementarity_target(iteration_data_t<i_t, f_t>& data,
       if (is_direct_free_linear) return f_t(0);
       return complementarity_xz_rhs / x_val;
     },
-    stream.value());
+    stream.get());
   RAFT_CHECK_CUDA(stream);
 }
 
@@ -3638,7 +3638,7 @@ void fill_affine_cone_complementarity_target(iteration_data_t<i_t, f_t>& data,
   auto cone_target =
     raft::device_span<f_t>(data.d_complementarity_target_.data() + cone_var_start, m_c);
   cub::DeviceTransform::Transform(
-    cones.z.data(), cone_target.data(), m_c, [] HD(f_t z_val) { return -z_val; }, stream.value());
+    cones.z.data(), cone_target.data(), m_c, [] HD(f_t z_val) { return -z_val; }, stream.get());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
   RAFT_CHECK_CUDA(stream);
 }
@@ -3858,7 +3858,7 @@ void barrier_solver_t<i_t, f_t>::compute_cc_rhs(iteration_data_t<i_t, f_t>& data
     data.d_complementarity_wv_rhs_.data(),
     data.d_complementarity_wv_rhs_.size(),
     [new_mu] HD(f_t dw_aff, f_t dv_aff) { return -(dw_aff * dv_aff) + new_mu; },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   // Zero the corrector RHS on device
   RAFT_CUDA_TRY(cudaMemsetAsync(data.d_h_.data(), 0, sizeof(f_t) * data.d_h_.size(), stream_view_));
@@ -3901,7 +3901,7 @@ void barrier_solver_t<i_t, f_t>::compute_final_direction(iteration_data_t<i_t, f
     [] HD(f_t dw_aff, f_t dv_aff, f_t dw, f_t dv) -> thrust::tuple<f_t, f_t> {
       return {dw + dw_aff, dv + dv_aff};
     },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   cub::DeviceTransform::Transform(
     cuda::std::make_tuple(
@@ -3911,14 +3911,14 @@ void barrier_solver_t<i_t, f_t>::compute_final_direction(iteration_data_t<i_t, f
     [] HD(f_t dx_aff, f_t dz_aff, f_t dx, f_t dz) -> thrust::tuple<f_t, f_t> {
       return {dx + dx_aff, dz + dz_aff};
     },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   cub::DeviceTransform::Transform(
     cuda::std::make_tuple(data.d_dy_aff_.data(), data.d_dy_.data()),
     data.d_dy_.data(),
     data.d_dy_.size(),
     [] HD(f_t dy_aff, f_t dy) { return dy + dy_aff; },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
 }
 
@@ -3975,7 +3975,7 @@ void barrier_solver_t<i_t, f_t>::compute_next_iterate(iteration_data_t<i_t, f_t>
     [step_primal, step_dual] HD(f_t w, f_t v, f_t dw, f_t dv) -> thrust::tuple<f_t, f_t> {
       return {w + step_primal * dw, v + step_dual * dv};
     },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   cub::DeviceTransform::Transform(
     cuda::std::make_tuple(data.d_x_.data(), data.d_z_.data(), data.d_dx_.data(), data.d_dz_.data()),
@@ -3984,7 +3984,7 @@ void barrier_solver_t<i_t, f_t>::compute_next_iterate(iteration_data_t<i_t, f_t>
     [step_primal, step_dual] HD(f_t x, f_t z, f_t dx, f_t dz) -> thrust::tuple<f_t, f_t> {
       return {x + step_primal * dx, z + step_dual * dz};
     },
-    stream_view_.value());
+    stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   cub::DeviceTransform::Transform(
     cuda::std::make_tuple(data.d_y_.data(), data.d_dy_.data()),
