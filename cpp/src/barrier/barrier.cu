@@ -3023,8 +3023,8 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
   // unscaled input to ADAT's h = primal_rhs + A*inv_diag*tmp3.
   {
     raft::common::nvtx::range fun_scope("Barrier: GPU assemble primal RHS");
-    RAFT_CUDA_TRY(
-      cudaMemsetAsync(data.d_tmp3_.data(), 0, sizeof(f_t) * data.d_tmp3_.size(), stream_view_.get()));
+    RAFT_CUDA_TRY(cudaMemsetAsync(
+      data.d_tmp3_.data(), 0, sizeof(f_t) * data.d_tmp3_.size(), stream_view_.get()));
     if (data.n_upper_bounds > 0) {
       cub::DeviceTransform::Transform(
         cuda::std::make_tuple(data.d_bound_rhs_.data(),
@@ -3861,7 +3861,8 @@ void barrier_solver_t<i_t, f_t>::compute_cc_rhs(iteration_data_t<i_t, f_t>& data
     stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   // Zero the corrector RHS on device
-  RAFT_CUDA_TRY(cudaMemsetAsync(data.d_h_.data(), 0, sizeof(f_t) * data.d_h_.size(), stream_view_.get()));
+  RAFT_CUDA_TRY(
+    cudaMemsetAsync(data.d_h_.data(), 0, sizeof(f_t) * data.d_h_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
     data.d_dual_rhs_.data(), 0, sizeof(f_t) * data.d_dual_rhs_.size(), stream_view_.get()));
   if (data.n_upper_bounds > 0) {

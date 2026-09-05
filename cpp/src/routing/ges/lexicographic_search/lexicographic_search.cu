@@ -713,13 +713,14 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
   solution_ptr->d_lock.set_value_async(zero, stream);
   global_random_counter_.set_value_async(zero, stream);
   lexicographic_search<i_t, f_t>
-    <<<n_blocks_lexico, threads_per_block_lexico, sh_size, stream.get()>>>(solution_ptr->view(),
-                                                                     k_max,
-                                                                     request_id,
-                                                                     p_scores_.data(),
-                                                                     global_min_p_.data(),
-                                                                     global_sequence_.data(),
-                                                                     global_random_counter_.data());
+    <<<n_blocks_lexico, threads_per_block_lexico, sh_size, stream.get()>>>(
+      solution_ptr->view(),
+      k_max,
+      request_id,
+      p_scores_.data(),
+      global_min_p_.data(),
+      global_sequence_.data(),
+      global_random_counter_.data());
   solution_ptr->sol_handle->sync_stream();
   RAFT_CHECK_CUDA(stream);
   // If global_min_p_ != max do the move
@@ -732,11 +733,11 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
     }
     execute_lexico_move<i_t, f_t, REQUEST>
       <<<1, threads_per_block_lexico, shared_for_tmp_route, stream.get()>>>(solution_ptr->view(),
-                                                                      request_id,
-                                                                      global_min_p_.data(),
-                                                                      global_sequence_.data(),
-                                                                      EP.view(),
-                                                                      p_scores_.data());
+                                                                            request_id,
+                                                                            global_min_p_.data(),
+                                                                            global_sequence_.data(),
+                                                                            EP.view(),
+                                                                            p_scores_.data());
     RAFT_CHECK_CUDA(stream);
     i_t removed_size = global_sequence_.element(1, stream);
     if constexpr (REQUEST == request_t::PDP) { removed_size = (removed_size - 1) / 2; }
