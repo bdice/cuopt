@@ -109,7 +109,7 @@ f_t vector_norm_inf(const rmm::device_uvector<f_t>& x)
     [] __host__ __device__(f_t val) { return abs(val); },
     static_cast<f_t>(0),
     thrust::maximum<f_t>{});
-  RAFT_CHECK_CUDA(x.stream());
+  RAFT_CHECK_CUDA(x.stream().get());
   return max_abs;
 }
 
@@ -125,7 +125,7 @@ f_t vector_norm2(const rmm::device_uvector<f_t>& x)
     [] __host__ __device__(f_t val) { return val * val; },
     f_t(0),
     thrust::plus<f_t>{});
-  RAFT_CHECK_CUDA(x.stream());
+  RAFT_CHECK_CUDA(x.stream().get());
   return std::sqrt(sum_of_squares);
 }
 

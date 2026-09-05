@@ -172,7 +172,7 @@ void find_break_insertions(solution_t<i_t, f_t, REQUEST>& sol,
         move_candidates.include_objective,
         move_candidates.weights,
         move_candidates.breaks_move_candidates.view());
-    RAFT_CUDA_TRY(cudaStreamSynchronize(sol.sol_handle->get_stream().get()));
+    sol.sol_handle->get_stream().sync();
   }
 }
 
@@ -256,7 +256,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_break_moves(solution_t<i_t, f_t,
   execute_break_moves<i_t, f_t, REQUEST>
     <<<n_blocks, TPB, shared_size, sol.sol_handle->get_stream().get()>>>(sol.view(),
                                                                    move_candidates.view());
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   sol.compute_cost();
   sol.sol_handle->sync_stream();

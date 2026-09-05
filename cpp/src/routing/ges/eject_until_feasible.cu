@@ -406,7 +406,7 @@ void solution_t<i_t, f_t, REQUEST>::populate_ep_with_selected_unserved(
 
   populate_ep_with_selected_unserved_kernel<i_t, f_t, REQUEST><<<1, TPB, 0, stream.get()>>>(
     view(), unserviced_view, EP.view(), ep_index_out.data(), problem_ptr->seed_gen.get_seed());
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
   EP.index_ = ep_index_out.value(stream);
   stream.sync();
 }

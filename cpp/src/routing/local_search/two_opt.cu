@@ -399,7 +399,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_two_opt(
       cuopt::make_span(two_opt_cand_data_),
       cuopt::make_span(sampled_nodes_data_),
       cuopt::make_span(locks_));
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   n_moves_found = thrust::count_if(sol.sol_handle->get_thrust_policy(),
                                    sampled_nodes_data_.begin(),
@@ -448,7 +448,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_two_opt(
         cuopt::make_span(two_opt_cand_data_),
         cuopt::make_span(moved_regions_));
   }
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   cuopt_func_call(sol.compute_cost());
   cuopt_func_call(cost_after =

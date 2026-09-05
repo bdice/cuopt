@@ -418,7 +418,7 @@ static void convert_greater_to_less(mip::problem_t<i_t, f_t>& problem)
                              problem.constraint_lower_bounds.size()),
       raft::device_span<f_t>(problem.constraint_upper_bounds.data(),
                              problem.constraint_upper_bounds.size()));
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 
   problem.compute_transpose_of_problem();
 

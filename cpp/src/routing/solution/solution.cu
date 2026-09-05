@@ -543,7 +543,7 @@ void solution_t<i_t, f_t, REQUEST>::copy_device_solution(solution_t<i_t, f_t, RE
   const auto n_blocks = n_routes;
   copy_routes<i_t, f_t, REQUEST>
     <<<n_blocks, TPB, 0, sol_handle->get_stream().get()>>>(view(), src_sol.view());
-  RAFT_CHECK_CUDA(sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol_handle->get_stream().get());
 
   cuopt_assert(route_node_map.intra_route_idx_per_node.size() == (size_t)get_num_orders(),
                "Intra route size mismatch!");
@@ -569,7 +569,7 @@ void solution_t<i_t, f_t, REQUEST>::copy_device_solution(solution_t<i_t, f_t, RE
     n_infeasible_routes.data(), src_sol.n_infeasible_routes.data(), 1, sol_handle->get_stream());
   unset_routes_to_copy();
   sol_handle->sync_stream();
-  RAFT_CHECK_CUDA(sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol_handle->get_stream().get());
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>
@@ -629,10 +629,10 @@ void solution_t<i_t, f_t, REQUEST>::shift_move_routes(
     remap_route_nodes<i_t, f_t, REQUEST>
       <<<n_blocks, threads_per_block, 0, sol_handle->get_stream().get()>>>(
         routes_view.data(), route_node_map.view(), route_ids_device_copy.data(), route_ids.size());
-    RAFT_CHECK_CUDA(sol_handle->get_stream());
+    RAFT_CHECK_CUDA(sol_handle->get_stream().get());
     shift_routes_kernel<i_t, f_t, REQUEST><<<1, 1, 0, sol_handle->get_stream().get()>>>(
       view(), route_ids_device_copy.data(), route_ids.size());
-    RAFT_CHECK_CUDA(sol_handle->get_stream());
+    RAFT_CHECK_CUDA(sol_handle->get_stream().get());
   }
   sol_handle->sync_stream();
   n_routes -= route_ids.size();

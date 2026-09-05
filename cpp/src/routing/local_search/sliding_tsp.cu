@@ -447,11 +447,11 @@ void compute_cumulative_distances(solution_t<i_t, f_t, REQUEST>& sol,
   if (reverse) {
     fill_reverse_distances_kernel<i_t, f_t, REQUEST>
       <<<n_fill_blocks, n_threads, 0, sol.sol_handle->get_stream().get()>>>(sol.view());
-    RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+    RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
   } else {
     fill_forward_distances_kernel<i_t, f_t, REQUEST>
       <<<n_fill_blocks, n_threads, 0, sol.sol_handle->get_stream().get()>>>(sol.view());
-    RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+    RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
   }
 
   size_t n_temp_storage_bytes = 0;
@@ -515,7 +515,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_tsp(
       move_candidates.view(),
       cuopt::make_span(sampled_tsp_data_),
       cuopt::make_span(locks_));
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   n_moves_found = thrust::count_if(rmm::exec_policy(sol.sol_handle->get_stream()),
                                    sampled_tsp_data_.begin(),
@@ -528,7 +528,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_tsp(
   set_moved_regions_kernel<i_t, f_t, REQUEST>
     <<<sol.get_n_routes(), 64, 0, sol.sol_handle->get_stream().get()>>>(
       sol.view(), cuopt::make_span(moved_region_node_infos_));
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   cuopt_func_call(
     move_candidates.debug_delta.set_value_to_zero_async(sol.sol_handle->get_stream()));
@@ -553,7 +553,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_tsp(
       move_candidates.view(),
       cuopt::make_span(sampled_tsp_data_),
       cuopt::make_span(moved_region_node_infos_));
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   compute_cumulative_distances<i_t, f_t, REQUEST, false>(
     sol, move_candidates, n_nodes, n_threads, temp_storage_bytes);

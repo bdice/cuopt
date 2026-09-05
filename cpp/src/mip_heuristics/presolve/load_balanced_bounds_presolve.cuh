@@ -103,7 +103,7 @@ class managed_stream_pool {
   {
     for (int i = 0; i < end_unsycned + 1; ++i) {
       streams_[i].synchronize();
-      RAFT_CHECK_CUDA(streams_[i].value());
+      RAFT_CHECK_CUDA(streams_[i].view().get());
     }
     end_unsycned = -1;
     next_stream  = 0;

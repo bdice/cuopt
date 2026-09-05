@@ -34,7 +34,7 @@ template <typename i_t>
 inline uint32_t compute_hash(raft::device_span<i_t> values, rmm::cuda_stream_view stream)
 {
   auto h_contents = cuopt::host_copy(values, stream);
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
   return cuopt::compute_hash(h_contents);
 }
 
@@ -42,7 +42,7 @@ template <typename i_t>
 inline uint32_t compute_hash(const rmm::device_uvector<i_t>& values, rmm::cuda_stream_view stream)
 {
   auto h_contents = cuopt::host_copy(values, stream);
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
   return cuopt::compute_hash(h_contents);
 }
 

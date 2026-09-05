@@ -343,7 +343,7 @@ void adjust_dual_solution_and_reduced_cost(rmm::device_uvector<f_t>& dual_soluti
     dual_solution.data(),
     dual_solution.size(),
     [] HD(f_t dual) { return -dual; },
-    stream_view);
+    stream_view.get());
 
   // z <- -z
   cub::DeviceTransform::Transform(
@@ -351,7 +351,7 @@ void adjust_dual_solution_and_reduced_cost(rmm::device_uvector<f_t>& dual_soluti
     reduced_cost.data(),
     reduced_cost.size(),
     [] HD(f_t reduced_cost) { return -reduced_cost; },
-    stream_view);
+    stream_view.get());
 }
 
 template <typename i_t, typename f_t>

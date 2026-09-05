@@ -370,7 +370,7 @@ void inline compute_sum_bounds_squared(const rmm::device_uvector<f_t>& constrain
     rhs_sum_of_squares_t<f_t>{},
     f_t(0),
     stream_view.get());
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view.get()));
+  stream_view.sync();
 }
 
 // Weighted sum of squares of the first n entries of `values` (no fused sqrt).
@@ -407,7 +407,7 @@ void inline compute_sum_weighted_squares(const rmm::device_uvector<f_t>& values,
                                      weighted_square_op<f_t>{weight},
                                      f_t(0),
                                      stream_view.get());
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view.get()));
+  stream_view.sync();
 }
 
 // Like compute_sum_bounds_squared, but writes sqrt(sum of squares) (the L2 norm).
@@ -442,7 +442,7 @@ void inline compute_sum_bounds(const rmm::device_uvector<f_t>& constraint_lower_
     rhs_sum_of_squares_t<f_t>{},
     f_t(0),
     stream_view.get());
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view.get()));
+  stream_view.sync();
 }
 
 template <typename f_t>
@@ -782,7 +782,7 @@ void inline my_inf_norm(const rmm::device_uvector<f_t>& input_vector,
   cub::DeviceReduce::Max(d_temp, temp_bytes, abs_iter, result, n, stream.get());
   rmm::device_buffer temp_buf(temp_bytes, stream);
   cub::DeviceReduce::Max(temp_buf.data(), temp_bytes, abs_iter, result, n, stream.get());
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+  stream.sync();
 }
 
 template <typename f_t>

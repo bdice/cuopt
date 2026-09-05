@@ -452,7 +452,7 @@ void local_search_t<i_t, f_t, REQUEST>::calculate_route_compatibility(
       sol.view(),
       move_candidates.route_compatibility.data(),
       move_candidates.viables.compatibility_matrix.data());
-  RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 }
 
 // sort the viable matrix according to the distance after the insertion
@@ -637,7 +637,7 @@ void initialize_incompatible(problem_t<i_t, f_t>& problem, solution_t<i_t, f_t, 
     initialize_incompatible_kernel<i_t, f_t, request_t::PDP>
       <<<n_blocks, TPB, 0, handle_ptr->get_stream().get()>>>(
         problem.view(), viables.compatibility_matrix.data(), sol_view);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream().get()));
+    handle_ptr->get_stream().sync();
     n_blocks = (problem.get_num_orders() * problem.get_num_orders() - 1 + TPB) / TPB;
     initialize_viable_kernel<i_t, f_t, request_t::PDP>
       <<<n_blocks, TPB, 0, handle_ptr->get_stream().get()>>>(problem.view(),
@@ -651,12 +651,12 @@ void initialize_incompatible(problem_t<i_t, f_t>& problem, solution_t<i_t, f_t, 
                                                        viables.n_viable_from_deliveries.data(),
                                                        sol_view,
                                                        is_problem_run);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream().get()));
+    handle_ptr->get_stream().sync();
   } else {
     initialize_incompatible_kernel<i_t, f_t, request_t::VRP>
       <<<n_blocks, TPB, 0, handle_ptr->get_stream().get()>>>(
         problem.view(), viables.compatibility_matrix.data(), sol_view);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream().get()));
+    handle_ptr->get_stream().sync();
     n_blocks = (problem.get_num_orders() * problem.get_num_orders() - 1 + TPB) / TPB;
     initialize_viable_kernel<i_t, f_t, request_t::VRP>
       <<<n_blocks, TPB, 0, handle_ptr->get_stream().get()>>>(problem.view(),
@@ -670,7 +670,7 @@ void initialize_incompatible(problem_t<i_t, f_t>& problem, solution_t<i_t, f_t, 
                                                        viables.n_viable_from_deliveries.data(),
                                                        sol_view,
                                                        is_problem_run);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream().get()));
+    handle_ptr->get_stream().sync();
   }
   problem.sort_viable_matrix(viables.viable_to_pickups, viables.viable_from_pickups);
   problem.sort_viable_matrix(viables.viable_to_deliveries, viables.viable_from_deliveries);

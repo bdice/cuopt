@@ -668,7 +668,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
   request_info_t<i_t, REQUEST>* __restrict__ request_id)
 {
   auto stream = solution_ptr->sol_handle->get_stream();
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
 
   i_t average_route_size = solution_ptr->get_num_orders() / solution_ptr->n_routes;
 
@@ -722,7 +722,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
       global_sequence_.data(),
       global_random_counter_.data());
   solution_ptr->sol_handle->sync_stream();
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
   // If global_min_p_ != max do the move
   if (global_min_p_.value(stream) != max) {
     // cuopt_assert(compare_lexico_results(*this, solution, request_id, EP, k_max), "");
@@ -738,7 +738,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
                                                                             global_sequence_.data(),
                                                                             EP.view(),
                                                                             p_scores_.data());
-    RAFT_CHECK_CUDA(stream);
+    RAFT_CHECK_CUDA(stream.get());
     i_t removed_size = global_sequence_.element(1, stream);
     if constexpr (REQUEST == request_t::PDP) { removed_size = (removed_size - 1) / 2; }
     EP.index_ += removed_size;

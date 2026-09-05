@@ -113,7 +113,7 @@ void invoke_round_nearest(solution_t<i_t, f_t>& solution, uint64_t seed)
   i_t n_blocks = (solution.problem_ptr->n_integer_vars + TPB - 1) / TPB;
   nearest_rounding_kernel<i_t, f_t>
     <<<n_blocks, TPB, 0, solution.handle_ptr->get_stream().get()>>>(solution.view(), seed);
-  RAFT_CHECK_CUDA(solution.handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(solution.handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>
@@ -155,7 +155,7 @@ void invoke_random_round_nearest(solution_t<i_t, f_t>& solution,
                     h_n_random_rounds);
   }
   solution.round_nearest(seed_rng.next_u64());
-  RAFT_CHECK_CUDA(solution.handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(solution.handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>

@@ -1394,7 +1394,7 @@ i_t pdlp_restart_strategy_t<i_t, f_t>::pick_restart_candidate()
     candidate_duality_gap_ = &current_duality_gap_;
   }
 
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
   return restart_to_average_h;
 }
 

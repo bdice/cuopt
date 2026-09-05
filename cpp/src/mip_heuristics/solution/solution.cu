@@ -297,7 +297,7 @@ void solution_t<i_t, f_t>::compute_constraints()
   i_t TPB = 64;
   compute_constraint_values<i_t, f_t>
     <<<problem_ptr->n_constraints, TPB, 0, handle_ptr->get_stream().get()>>>(view());
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>

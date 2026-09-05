@@ -240,7 +240,7 @@ int optimal_batch_size_handler(const optimization_problem_t<i_t, f_t>& op_proble
   i_t dual_size            = problem.n_constraints;
 
   // Sync before starting anything to make sure everything is done
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view.get()));
+  stream_view.sync();
 
   // Evaluate current, left and right nodes to pick a direction
 

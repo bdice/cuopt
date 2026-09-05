@@ -1110,11 +1110,11 @@ i_t fj_t<i_t, f_t>::solve(solution_t<i_t, f_t>& solution)
   }
 
   climber_init(0);
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   handle_ptr->sync_stream();
 
   i_t iterations = host_loop(solution);
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   handle_ptr->sync_stream();
 
   f_t effort_rate = (f_t)iterations / timer.elapsed_time();

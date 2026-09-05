@@ -273,7 +273,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::guided_ejection_search_loop(i_
     incr_p_scores<i_t><<<1, 1, 0, solution_ptr->sol_handle->get_stream().get()>>>(
       request, p_scores_.data(), depot_included);
 
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
     bool move_executed = config.frag_eject_first
                            ? execute_best_insertion_ejection_solution(request, counter)
                            : run_lexicographic_search(request);
@@ -306,7 +306,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::guided_ejection_search_loop(i_
         return false;
       }
 
-      RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+      RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
       // reinsert the request and increase the ejection failure counter
       EP.push_back_last();
       consecutive_ejection_failure++;

@@ -1083,7 +1083,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
   }
   sliding_cuda_graph.end_capture(solution.sol_handle->get_stream());
   sliding_cuda_graph.launch_graph(solution.sol_handle->get_stream());
-  RAFT_CHECK_CUDA(solution.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(solution.sol_handle->get_stream().get());
   n_moves_found = thrust::count_if(solution.sol_handle->get_thrust_policy(),
                                    found_sliding_solution_data_.begin(),
                                    found_sliding_solution_data_.end(),
@@ -1109,7 +1109,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
       found_sliding_solution_data_.data(),
       move_candidates.view(),
       move_candidates.debug_delta.data());
-  RAFT_CHECK_CUDA(solution.sol_handle->get_stream());
+  RAFT_CHECK_CUDA(solution.sol_handle->get_stream().get());
   cuopt_func_call(solution.compute_cost());
   cuopt_func_call(cost_after =
                     solution.get_cost(move_candidates.include_objective, move_candidates.weights));

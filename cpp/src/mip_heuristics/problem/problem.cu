@@ -491,7 +491,7 @@ void csr_to_csc_transpose(const i_t* csr_offsets,
   // Copy sorted results back
   raft::copy(csc_indices, row_ind_sorted.data(), nnz, stream);
   raft::copy(csc_values, val_sorted.data(), nnz, stream);
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream.get()));
+  stream.sync();
 }
 
 template <typename i_t, typename f_t>
@@ -1524,7 +1524,7 @@ void problem_t<i_t, f_t>::substitute_variables(const std::vector<i_t>& var_indic
                                      cuda::std::plus<>{},
                                      initial_value,
                                      handle_ptr->get_stream().get());
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   thrust::for_each(
     handle_ptr->get_thrust_policy(),
     thrust::make_counting_iterator(0),
@@ -1648,7 +1648,7 @@ void problem_t<i_t, f_t>::fix_given_variables(problem_t<i_t, f_t>& original_prob
                                      cuda::std::plus<>{},
                                      initial_value,
                                      handle_ptr->get_stream().get());
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   thrust::for_each(
     handle_ptr->get_thrust_policy(),
     thrust::make_counting_iterator(0),
@@ -1687,7 +1687,7 @@ problem_t<i_t, f_t> problem_t<i_t, f_t>::get_problem_after_fixing_vars(
   variable_map.resize(assignment.size() - variables_to_fix.size(), handle_ptr->get_stream());
   // compute variable map to recover the assignment later
   // get the variable indices to gather
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   cuopt_assert(
     (thrust::is_sorted(
       handle_ptr->get_thrust_policy(), variables_to_fix.begin(), variables_to_fix.end())),
@@ -1699,14 +1699,14 @@ problem_t<i_t, f_t> problem_t<i_t, f_t>::get_problem_after_fixing_vars(
                                            variables_to_fix.begin(),
                                            variables_to_fix.end(),
                                            variable_map.begin());
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   cuopt_assert(result_end - variable_map.data() == variable_map.size(),
                "Size issue in set_difference");
   CUOPT_LOG_DEBUG("Fixing assignment hash 0x%x, vars to fix: 0x%x",
                   mip::compute_hash(assignment, handle_ptr->get_stream()),
                   mip::compute_hash(variables_to_fix, handle_ptr->get_stream()));
   problem.fix_given_variables(*this, assignment, variables_to_fix, handle_ptr);
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   problem.remove_given_variables(*this, assignment, variable_map, handle_ptr);
   // if we are fixing on the original problem, the variable_map is what we want in
   // problem.original_ids but considering the case that we are fixing some variables multiple times,
@@ -1721,7 +1721,7 @@ problem_t<i_t, f_t> problem_t<i_t, f_t>::get_problem_after_fixing_vars(
                  "Variable index out of bounds");
     problem.reverse_original_ids[original_ids[h_variable_map[i]]] = i;
   }
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   auto end_time = std::chrono::high_resolution_clock::now();
   double time_taken =
     std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
@@ -1792,7 +1792,7 @@ void problem_t<i_t, f_t>::remove_given_variables(problem_t<i_t, f_t>& original_p
   // compute new offsets
   compute_new_offsets<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream().get()>>>(
     original_problem.view(), view(), cuopt::make_span(variable_map));
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   thrust::exclusive_scan(handle_ptr->get_thrust_policy(),
                          offsets.data(),
                          offsets.data() + offsets.size(),
@@ -1802,7 +1802,7 @@ void problem_t<i_t, f_t>::remove_given_variables(problem_t<i_t, f_t>& original_p
   // compute new csr
   compute_new_csr<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream().get()>>>(
     original_problem.view(), view(), cuopt::make_span(variable_map), cuopt::make_span(write_pos));
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   // assign nnz, number of variables etc.
   nnz         = offsets.back_element(handle_ptr->get_stream());
   n_variables = variable_map.size();
@@ -2150,7 +2150,7 @@ void problem_t<i_t, f_t>::set_constraints_from_host_csr(const std::vector<i_t>& 
   thrust::fill(
     handle_ptr->get_thrust_policy(), lp_state.prev_dual.begin(), lp_state.prev_dual.end(), f_t{0});
   handle_ptr->sync_stream();
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
 
   compute_transpose_of_problem();
   combined_bounds.resize(n_constraints, stream);
@@ -2409,7 +2409,7 @@ void problem_t<i_t, f_t>::update_variable_bounds(const std::vector<i_t>& var_ind
       variable_bounds[var_idx].y = ub_values[i];
     });
   handle_ptr->sync_stream();
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 }
 
 #if MIP_INSTANTIATE_FLOAT || PDLP_INSTANTIATE_FLOAT

@@ -275,7 +275,7 @@ void lb_bounds_repair_t<i_t, f_t>::compute_damages(
                                                          make_span(cstr_violations_up),
                                                          make_span(cstr_violations_down),
                                                          make_span_2(lb_bound_presolve.cnst_slack));
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   auto sort_iterator = thrust::make_zip_iterator(
     thrust::make_tuple(candidates.cstr_delta.data(), candidates.damage.data()));
   // sort the best moves so that we can filter

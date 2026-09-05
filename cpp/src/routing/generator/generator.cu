@@ -234,7 +234,7 @@ d_mdarray_t<f_t> generate_matrices(raft::handle_t& handle,
                                                       params.n_locations,
                                                       params.asymmetric,
                                                       asymmetry_scalar);
-  RAFT_CHECK_CUDA(handle.get_stream());
+  RAFT_CHECK_CUDA(handle.get_stream().get());
 
   auto seed     = params.seed;
   auto matrices = detail::create_device_mdarray<f_t>(
@@ -494,7 +494,7 @@ time_window_t<i_t> generate_time_windows(raft::handle_t& handle,
                                                          params.tw_tightness,
                                                          params.n_locations);
   handle.sync_stream();
-  RAFT_CHECK_CUDA(handle.get_stream());
+  RAFT_CHECK_CUDA(handle.get_stream().get());
 
   return std::make_tuple(
     std::move(v_earliest_time), std::move(v_latest_time), std::move(v_service_time));

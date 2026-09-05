@@ -188,7 +188,7 @@ void pdlp_termination_strategy_t<i_t, f_t>::evaluate_termination_criteria(
   check_termination_criteria();
 
   // Sync to make sure the termination status is updated
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
 }
 
 template <typename i_t, typename f_t>
@@ -509,7 +509,7 @@ void pdlp_termination_strategy_t<i_t, f_t>::fill_gpu_terms_stats(i_t number_of_i
     settings_.per_constraint_residual,
     force_all);
 
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
 }
 
 template <typename i_t, typename f_t>
@@ -641,7 +641,7 @@ pdlp_termination_strategy_t<i_t, f_t>::fill_return_problem_solution(
     }
   }
 
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
 
   if (deep_copy) {
     cuopt_assert(

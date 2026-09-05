@@ -114,7 +114,7 @@ void weighted_average_solution_t<i_t, f_t>::compute_averages(rmm::device_uvector
   f_t sum_primal_solution_weights_h = sum_primal_solution_weights_.value(stream_view_);
   f_t sum_dual_solution_weights_h   = sum_dual_solution_weights_.value(stream_view_);
 
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
 
   // compute sum_primal_solutions/primal_size
   raft::linalg::divideScalar(avg_primal.data(),

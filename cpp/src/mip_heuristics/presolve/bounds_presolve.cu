@@ -123,7 +123,7 @@ bool bound_presolve_t<i_t, f_t>::calculate_bounds_update(problem_t<i_t, f_t>& pb
   upd.bounds_changed.set_value_async(zero, pb.handle_ptr->get_stream());
   update_bounds_kernel<i_t, f_t, n_threads>
     <<<pb.n_variables, n_threads, 0, pb.handle_ptr->get_stream().get()>>>(pb.view(), upd.view());
-  RAFT_CHECK_CUDA(pb.handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(pb.handle_ptr->get_stream().get());
   i_t h_bounds_changed = upd.bounds_changed.value(pb.handle_ptr->get_stream());
   return h_bounds_changed != zero;
 }
@@ -165,7 +165,7 @@ void bound_presolve_t<i_t, f_t>::set_bounds(
                      var_ub[pair.first] = pair.second;
                    });
   handle_ptr->sync_stream();
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>
@@ -283,7 +283,7 @@ bool bound_presolve_t<i_t, f_t>::calculate_infeasible_redundant_constraints(prob
                    thrust::make_tuple<i_t, i_t>(0, 0),
                    tuple_plus_t<i_t>{});
 
-  RAFT_CHECK_CUDA(pb.handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(pb.handle_ptr->get_stream().get());
 
   if (redund_constraints_count > 0) {
     CUOPT_LOG_TRACE("Redundant constraint count %d", redund_constraints_count);

@@ -605,7 +605,7 @@ struct OX {
                                         row_offsets.data(),
                                         row_offsets.data() + 1,
                                         stream_view.get());
-    RAFT_CHECK_CUDA(stream_view);
+    RAFT_CHECK_CUDA(stream_view.get());
 
     thrust::gather(policy, val_map.begin(), val_map.end(), graph.buckets.data(), gather_int.data());
     thrust::gather(
@@ -624,7 +624,7 @@ struct OX {
     transpose_graph.reset(A.sol.sol_handle);
     transpose_graph_kernel<int, float><<<n_blocks, TPB, 0, A.sol.sol_handle->get_stream().get()>>>(
       d_graph.view(), transpose_graph.view(), max_route_len);
-    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream());
+    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream().get());
     sort_graph_edges<int, float>(A, transpose_graph);
   }
 
@@ -650,7 +650,7 @@ struct OX {
       raft::device_span<double>(d_path_cost.data(), d_path_cost.size()),
       raft::device_span<int>(d_predecessor.data(), d_predecessor.size()),
       raft::device_span<int>(d_predecessor_vehicle.data(), d_predecessor_vehicle.size()));
-    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream());
+    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream().get());
 
     constexpr auto const TPB     = 128;
     auto min_cost_of_last_column = std::numeric_limits<double>::max();
@@ -675,7 +675,7 @@ struct OX {
           row_size,
           i,
           run_heuristic);
-      RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream());
+      RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream().get());
 
       if (optimal_routes_search) {
         raft::copy(&cost_of_last_column,
@@ -978,7 +978,7 @@ struct OX {
         raft::device_span<int>(d_vehicle_id_per_bucket.data(), d_vehicle_id_per_bucket.size()),
         max_route_len,
         gpu_weight);
-    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream());
+    RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream().get());
     A.sol.sol_handle->sync_stream();
 
     if (A.problem->data_view_ptr->get_vehicle_locations().first == nullptr) {

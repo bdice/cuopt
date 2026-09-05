@@ -357,7 +357,7 @@ void adaptive_step_size_strategy_t<i_t, f_t>::compute_step_sizes(
                                         pdhg_solver.get_d_total_pdhg_iterations().data());
   });
   // Steam sync so that next call can see modification made to host var valid_step_size
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
+  stream_view_.sync();
 }
 
 template <typename i_t, typename f_t>

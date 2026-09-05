@@ -188,22 +188,22 @@ bool build_graph(managed_stream_pool& streams,
   }
 
   cudaStreamEndCapture(handle_ptr->get_stream().get(), &graph);
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 
   if (graph_exec != nullptr) {
     cudaGraphExecDestroy(graph_exec);
     cudaGraphInstantiate(&graph_exec, graph);
-    RAFT_CHECK_CUDA(handle_ptr->get_stream());
+    RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   } else {
     cudaGraphInstantiate(&graph_exec, graph);
-    RAFT_CHECK_CUDA(handle_ptr->get_stream());
+    RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   }
 
   cudaGraphDestroy(graph);
   graph_created = true;
 
-  handle_ptr->get_stream().synchronize();
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  handle_ptr->get_stream().sync();
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 
   return graph_created;
 }
@@ -234,7 +234,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::setup(
                                                            heavy_degree_cutoff,
                                                            problem.cnst_bin_offsets,
                                                            problem.offsets);
-  RAFT_CHECK_CUDA(stream_heavy_cnst);
+  RAFT_CHECK_CUDA(stream_heavy_cnst.get());
 
   num_blocks_heavy_vars = create_heavy_item_block_segments(stream_heavy_vars,
                                                            heavy_vars_vertex_ids,
@@ -243,7 +243,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::setup(
                                                            heavy_degree_cutoff,
                                                            problem.vars_bin_offsets,
                                                            problem.reverse_offsets);
-  RAFT_CHECK_CUDA(stream_heavy_vars);
+  RAFT_CHECK_CUDA(stream_heavy_vars.get());
 
   tmp_act.resize(2 * num_blocks_heavy_cnst, stream_heavy_cnst);
   tmp_bnd.resize(2 * num_blocks_heavy_vars, stream_heavy_vars);
@@ -254,7 +254,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::setup(
   std::tie(is_vars_sub_warp_single_bin, vars_sub_warp_count) =
     sub_warp_meta(stream, warp_vars_offsets, warp_vars_id_offsets, pb->vars_bin_offsets, 4);
 
-  RAFT_CHECK_CUDA(stream);
+  RAFT_CHECK_CUDA(stream.get());
   streams.sync_test_all_issued();
 
   if (!calc_slack_erase_inf_cnst_graph_created) {
@@ -494,7 +494,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::calculate_constraint_slack_iter(
     cudaGraphLaunch(calc_slack_erase_inf_cnst_exec, handle_ptr->get_stream());
   }
   infeas_cnst_slack_set_to_nan = true;
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>
@@ -508,7 +508,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::calculate_constraint_slack(
     cudaGraphLaunch(calc_slack_exec, handle_ptr->get_stream());
   }
   infeas_cnst_slack_set_to_nan = false;
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
 }
 
 template <typename i_t, typename f_t>
@@ -520,7 +520,7 @@ bool load_balanced_bounds_presolve_t<i_t, f_t>::update_bounds_from_slack(
     raft::common::nvtx::range scope("upd_cuda_task_graph");
     cudaGraphLaunch(upd_bnd_exec, handle_ptr->get_stream());
   }
-  RAFT_CHECK_CUDA(handle_ptr->get_stream());
+  RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   constexpr i_t zero = 0;
   return (zero < h_bounds_changed);
 }
@@ -602,7 +602,7 @@ bool load_balanced_bounds_presolve_t<i_t, f_t>::calculate_infeasible_redundant_c
       thrust::reduce(handle_ptr->get_thrust_policy(), detect_iter, detect_iter + pb->n_constraints);
 
     handle_ptr->sync_stream();
-    RAFT_CHECK_CUDA(handle_ptr->get_stream());
+    RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   } else {
     auto detect_iter = thrust::make_transform_iterator(
       thrust::make_zip_iterator(thrust::make_tuple(pb->constraint_lower_bounds.begin(),
@@ -614,7 +614,7 @@ bool load_balanced_bounds_presolve_t<i_t, f_t>::calculate_infeasible_redundant_c
     infeas_constraints_count =
       thrust::reduce(handle_ptr->get_thrust_policy(), detect_iter, detect_iter + pb->n_constraints);
     handle_ptr->sync_stream();
-    RAFT_CHECK_CUDA(handle_ptr->get_stream());
+    RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   }
   if (infeas_constraints_count > 0) {
     CUOPT_LOG_TRACE("LB Infeasible constraint count %d", infeas_constraints_count);

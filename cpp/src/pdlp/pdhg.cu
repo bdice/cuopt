@@ -191,7 +191,7 @@ new_bounds_groups_t<i_t, f_t> copy_new_bounds_to_groups(
     raft::copy(h_idx.data(), new_bounds_idx.data(), n_entries, stream_view);
     raft::copy(h_lower.data(), new_bounds_lower.data(), n_entries, stream_view);
     raft::copy(h_upper.data(), new_bounds_upper.data(), n_entries, stream_view);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view.get()));
+    stream_view.sync();
   }
 
   new_bounds_groups_t<i_t, f_t> groups(batch_size);

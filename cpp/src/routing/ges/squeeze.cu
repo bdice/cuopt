@@ -39,7 +39,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::repair_empty_routes()
     find_best_empty_route_move<i_t, f_t, REQUEST>
       <<<n_blocks, TPB, sh_find, solution_ptr->sol_handle->get_stream().get()>>>(
         solution_ptr->view(), best_move.data(), include_objective, default_weights, excess_limit);
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
 
     // If unable to find feasible moves, switch to least excess moves
     cand_t best_move_h = best_move.value(solution_ptr->sol_handle->get_stream());
@@ -53,7 +53,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::repair_empty_routes()
     execute_best_empty_route_move<i_t, f_t, REQUEST>
       <<<1, TPB, sh_route, solution_ptr->sol_handle->get_stream().get()>>>(solution_ptr->view(),
                                                                      best_move.data());
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
     ++counter;
   }
   solution_ptr->sol_handle->sync_stream();
@@ -104,7 +104,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::try_multiple_insert(i_t n_inser
                                            excess_limit,
                                            n_insertions,
                                            inserted_requests.data());
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
 
     if constexpr (squeeze_mode) {
       size_t move_blocks = solution_ptr->get_num_requests();
@@ -112,7 +112,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::try_multiple_insert(i_t n_inser
         <<<move_blocks, TPB, 0, stream.get()>>>(solution_ptr->view(),
                                           cuopt::make_span(best_squeeze_per_cand),
                                           cuopt::make_span(best_squeeze_per_route));
-      RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+      RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
     }
 
     size_t move_blocks = solution_ptr->get_n_routes();
@@ -126,7 +126,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::try_multiple_insert(i_t n_inser
                                                       cuopt::make_span(best_squeeze_per_route),
                                                       inserted_requests.data(),
                                                       number_of_inserted.data());
-    RAFT_CHECK_CUDA(stream);
+    RAFT_CHECK_CUDA(stream.get());
     auto n_inserted = number_of_inserted.value(stream);
 
     if (n_inserted == 0) {
@@ -173,7 +173,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::try_multiple_feasible_insertion
 
   eject_inserted_requests<i_t, f_t, REQUEST><<<1, 32, 0, solution_ptr->sol_handle->get_stream().get()>>>(
     EP.view(), inserted_requests.data(), n_insertions);
-  RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+  RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
 
   // Index is not updated in device view
   EP.index_ -= successful_insertions;
@@ -212,7 +212,7 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::squeeze_all_ep()
     eject_inserted_requests<i_t, f_t, REQUEST>
       <<<1, 32, 0, solution_ptr->sol_handle->get_stream().get()>>>(
         EP.view(), inserted_requests.data(), batch_size);
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
 
     // Index is not updated in device view
     EP.index_ -= successful_insertions;
@@ -305,7 +305,7 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::squeeze(
                                     include_objective,
                                     local_search_ptr_->move_candidates.weights,
                                     route_id);
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
   } else {
     find_best_squeeze_pos<i_t, f_t, REQUEST>
       <<<n_blocks, TPB, sh_size, stream.get()>>>(solution_ptr->view(),
@@ -313,7 +313,7 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::squeeze(
                                            best_move.data(),
                                            include_objective,
                                            local_search_ptr_->move_candidates.weights);
-    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+    RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
   }
   cuopt_assert(best_move.value(stream).cost_counter.cost != std::numeric_limits<double>::max(),
                "At least a move should be found in squeeze");
@@ -380,7 +380,7 @@ void guided_ejection_search_t<i_t, f_t, REQUEST>::squeeze_breaks()
 
   squeeze_breaks_kernel<i_t, f_t, REQUEST><<<n_blocks, TPB, sh_size, stream.get()>>>(
     solution_ptr->view(), false, local_search_ptr_->move_candidates.weights);
-  RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
+  RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
   solution_ptr->compute_cost();
   solution_ptr->global_runtime_checks(false, false, "squeeze_breaks_end");
   return;
