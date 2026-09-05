@@ -53,7 +53,7 @@ f_t device_custom_vector_norm_inf(InputIteratorT in, i_t size, rmm::cuda_stream_
                             size,
                             custom_op,
                             init,
-                            stream_view);
+                            stream_view.get());
 
   d_temp_storage.resize(temp_storage_bytes, stream_view);
 
@@ -64,7 +64,7 @@ f_t device_custom_vector_norm_inf(InputIteratorT in, i_t size, rmm::cuda_stream_
                             size,
                             custom_op,
                             init,
-                            stream_view);
+                            stream_view.get());
   return d_out.value(stream_view);
 }
 

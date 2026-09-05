@@ -375,7 +375,7 @@ f_t iterative_refinement(T& op,
 
   raft::copy(x.data(), d_x.data(), x.size(), op.data_.handle_ptr->get_stream());
 
-  RAFT_CUDA_TRY(cudaStreamSynchronize(op.data_.handle_ptr->get_stream()));
+  RAFT_CUDA_TRY(cudaStreamSynchronize(op.data_.handle_ptr->get_stream().get()));
   return err;
 }
 

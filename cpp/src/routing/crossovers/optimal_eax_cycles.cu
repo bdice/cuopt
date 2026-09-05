@@ -151,7 +151,7 @@ void optimal_cycles_t<i_t, f_t, REQUEST>::get_min_delta_and_index(
                             eax_cycle_delta.data(),
                             index_delta_pair.data(),
                             num_items,
-                            sol.sol.sol_handle->get_stream());
+                            sol.sol.sol_handle->get_stream().get());
   // Allocate temporary storage
   if (d_cub_storage_bytes.size() < temp_storage_bytes) {
     d_cub_storage_bytes.resize(temp_storage_bytes, sol.sol.sol_handle->get_stream());
@@ -162,7 +162,7 @@ void optimal_cycles_t<i_t, f_t, REQUEST>::get_min_delta_and_index(
                             eax_cycle_delta.data(),
                             index_delta_pair.data(),
                             num_items,
-                            sol.sol.sol_handle->get_stream());
+                            sol.sol.sol_handle->get_stream().get());
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>
@@ -179,7 +179,7 @@ bool optimal_cycles_t<i_t, f_t, REQUEST>::insert_cycle_to_found_position(
     return false;
   }
   // prepare the rotations once and copy them to respective device arrays
-  insert_optimal_rotation_kernel<i_t, f_t><<<1, TPB, sh_size, solution.sol_handle->get_stream()>>>(
+  insert_optimal_rotation_kernel<i_t, f_t><<<1, TPB, sh_size, solution.sol_handle->get_stream().get()>>>(
     solution.view(), index_delta_pair.data(), eax_fragment.view(), n_rotations);
   solution.compute_route_id_per_node();
   solution.compute_cost();
@@ -216,14 +216,14 @@ bool optimal_cycles_t<i_t, f_t, REQUEST>::add_cycles_request(
 
     constexpr i_t TPB = 128;
     // prepare the rotations once and copy them to respective device arrays
-    create_rotations_kernel<i_t, f_t><<<1, TPB, 0, solution.sol_handle->get_stream()>>>(
+    create_rotations_kernel<i_t, f_t><<<1, TPB, 0, solution.sol_handle->get_stream().get()>>>(
       solution.view(),
       raft::device_span<NodeInfo<>>(d_cycle.data(), d_cycle.size()),
       eax_fragment.view(),
       n_rotations);
 
     i_t n_blocks = (n_rotations * n_positions + TPB - 1) / TPB;
-    find_optimal_position_kernel<i_t, f_t><<<n_blocks, TPB, 0, solution.sol_handle->get_stream()>>>(
+    find_optimal_position_kernel<i_t, f_t><<<n_blocks, TPB, 0, solution.sol_handle->get_stream().get()>>>(
       solution.view(),
       resource.ls.move_candidates.view(),
       eax_fragment.view(),

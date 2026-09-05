@@ -115,11 +115,11 @@ void multi_probe_t<i_t, f_t>::calculate_activity(problem_t<i_t, f_t>& pb,
     auto& upd                = skip_0 ? upd_1 : upd_0;
     constexpr auto n_threads = 256;
     calc_activity_kernel<i_t, f_t, n_threads>
-      <<<pb.n_constraints, n_threads, 0, handle_ptr->get_stream()>>>(pb.view(), upd.view());
+      <<<pb.n_constraints, n_threads, 0, handle_ptr->get_stream().get()>>>(pb.view(), upd.view());
   } else {
     constexpr auto n_threads = 256;
     calc_activity_kernel<i_t, f_t, n_threads>
-      <<<pb.n_constraints, n_threads, 0, handle_ptr->get_stream()>>>(
+      <<<pb.n_constraints, n_threads, 0, handle_ptr->get_stream().get()>>>(
         pb.view(), upd_0.view(), upd_1.view());
   }
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
@@ -150,7 +150,7 @@ bool multi_probe_t<i_t, f_t>::calculate_bounds_update(problem_t<i_t, f_t>& pb,
   } else if (skip_0) {
     upd_1.bounds_changed.set_value_async(zero, handle_ptr->get_stream());
     update_bounds_kernel<i_t, f_t, n_threads>
-      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream()>>>(pb.view(), upd_1.view());
+      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream().get()>>>(pb.view(), upd_1.view());
     RAFT_CHECK_CUDA(handle_ptr->get_stream());
     i_t h_bounds_changed_1 = upd_1.bounds_changed.value(handle_ptr->get_stream());
     CUOPT_LOG_TRACE("Bounds changed upd 1 %d", h_bounds_changed_1);
@@ -158,7 +158,7 @@ bool multi_probe_t<i_t, f_t>::calculate_bounds_update(problem_t<i_t, f_t>& pb,
   } else if (skip_1) {
     upd_0.bounds_changed.set_value_async(zero, handle_ptr->get_stream());
     update_bounds_kernel<i_t, f_t, n_threads>
-      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream()>>>(pb.view(), upd_0.view());
+      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream().get()>>>(pb.view(), upd_0.view());
     RAFT_CHECK_CUDA(handle_ptr->get_stream());
     i_t h_bounds_changed_0 = upd_0.bounds_changed.value(handle_ptr->get_stream());
     CUOPT_LOG_TRACE("Bounds changed upd 0 %d", h_bounds_changed_0);
@@ -167,7 +167,7 @@ bool multi_probe_t<i_t, f_t>::calculate_bounds_update(problem_t<i_t, f_t>& pb,
     upd_0.bounds_changed.set_value_async(zero, handle_ptr->get_stream());
     upd_1.bounds_changed.set_value_async(zero, handle_ptr->get_stream());
     update_bounds_kernel<i_t, f_t, n_threads>
-      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream()>>>(
+      <<<pb.n_variables, n_threads, 0, handle_ptr->get_stream().get()>>>(
         pb.view(), upd_0.view(), upd_1.view());
     RAFT_CHECK_CUDA(handle_ptr->get_stream());
     i_t h_bounds_changed_0 = upd_0.bounds_changed.value(handle_ptr->get_stream());

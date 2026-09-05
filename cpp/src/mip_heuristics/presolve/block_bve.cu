@@ -762,12 +762,12 @@ double bve_project_batch_gpu(const raft::handle_t& handle,
       // sentinel 0xFFFFFFFF (every byte 0xFF) marks a boundary pattern with no feasible interior
       // yet
       RAFT_CUDA_TRY(
-        cudaMemsetAsync(d_witness.data(), 0xFF, d_witness.size() * sizeof(uint32_t), stream));
+        cudaMemsetAsync(d_witness.data(), 0xFF, d_witness.size() * sizeof(uint32_t), stream.get()));
 
       // one warp per row, one CTA per (block, m, am) assignment, grid-strided
       const int64_t total = (int64_t)num * (int64_t)patterns * ((int64_t)1 << na);
       const int grid      = std::min(total, int64_t{65535});
-      bve_enumerate_kernel<i_t, f_t><<<grid, cta_dim, shmem, stream>>>(num,
+      bve_enumerate_kernel<i_t, f_t><<<grid, cta_dim, shmem, stream.get()>>>(num,
                                                                        nb,
                                                                        na,
                                                                        nrows,

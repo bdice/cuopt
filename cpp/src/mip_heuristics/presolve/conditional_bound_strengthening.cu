@@ -85,7 +85,7 @@ void spgemm_cusparse([[maybe_unused]] rmm::device_uvector<i_t>& offsetsA,
   auto stream = offsetsA.stream();
   cusparseHandle_t handle;
   cusparseCreate(&handle);
-  cusparseSetStream(handle, stream);
+  cusparseSetStream(handle, stream.get());
 
   int m    = offsetsA.size() - 1;
   int n    = offsetsB.size() - 1;

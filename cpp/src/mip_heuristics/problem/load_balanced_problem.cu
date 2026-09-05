@@ -203,13 +203,13 @@ void create_constraint_graph(const raft::handle_t* handle_ptr,
     handle_ptr->get_thrust_policy(), offsets.begin(), offsets.end(), offsets.begin());
 
   // copy adjacency lists and vertex properties
-  constraint_data_copy<i_t, f_t><<<reorg_ids.size(), 256, 0, handle_ptr->get_stream()>>>(
+  constraint_data_copy<i_t, f_t><<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(
     make_span(reorg_ids), make_span(offsets), make_span(coeff), make_span(edge), bounds, pb.view());
 
   if (debug) {
     rmm::device_scalar<i_t> errors(zero_v<i_t>, handle_ptr->get_stream());
     check_constraint_data<i_t, f_t>
-      <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream()>>>(make_span(reorg_ids),
+      <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
                                                                make_span(offsets),
                                                                make_span(coeff),
                                                                make_span(edge),
@@ -245,7 +245,7 @@ void create_variable_graph(const raft::handle_t* handle_ptr,
 
   // copy adjacency lists and vertex properties
   variable_data_copy<i_t, f_t>
-    <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream()>>>(make_span(reorg_ids),
+    <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
                                                              make_span(offsets),
                                                              make_span(coeff),
                                                              make_span(edge),
@@ -256,7 +256,7 @@ void create_variable_graph(const raft::handle_t* handle_ptr,
   if (debug) {
     rmm::device_scalar<i_t> errors(zero_v<i_t>, handle_ptr->get_stream());
     check_variable_data<i_t, f_t>
-      <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream()>>>(make_span(reorg_ids),
+      <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
                                                                make_span(offsets),
                                                                make_span(coeff),
                                                                make_span(edge),

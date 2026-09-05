@@ -454,7 +454,7 @@ void csr_to_csc_transpose(const i_t* csr_offsets,
   rmm::device_uvector<i_t> next_pos(n_cols, stream);
   raft::copy(next_pos.data(), csc_offsets, n_cols, stream);
 
-  csr_to_csc_scatter_kernel<i_t, f_t><<<n_rows, 256, 0, stream>>>(
+  csr_to_csc_scatter_kernel<i_t, f_t><<<n_rows, 256, 0, stream.get()>>>(
     n_rows, csr_offsets, csr_indices, csr_values, next_pos.data(), csc_indices, csc_values);
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
@@ -473,7 +473,7 @@ void csr_to_csc_transpose(const i_t* csr_offsets,
                                       n_cols,
                                       csc_offsets,
                                       csc_offsets + 1,
-                                      stream);
+                                      stream.get());
 
   rmm::device_uvector<std::byte> temp_storage(temp_storage_bytes, stream);
   cub::DeviceSegmentedSort::SortPairs(temp_storage.data(),
@@ -486,12 +486,12 @@ void csr_to_csc_transpose(const i_t* csr_offsets,
                                       n_cols,
                                       csc_offsets,
                                       csc_offsets + 1,
-                                      stream);
+                                      stream.get());
 
   // Copy sorted results back
   raft::copy(csc_indices, row_ind_sorted.data(), nnz, stream);
   raft::copy(csc_values, val_sorted.data(), nnz, stream);
-  RAFT_CUDA_TRY(cudaStreamSynchronize(stream));
+  RAFT_CUDA_TRY(cudaStreamSynchronize(stream.get()));
 }
 
 template <typename i_t, typename f_t>
@@ -500,9 +500,9 @@ void problem_t<i_t, f_t>::compute_transpose_of_problem()
   raft::common::nvtx::range fun_scope("compute_transpose_of_problem");
   csrsort_cusparse(coefficients, variables, offsets, n_constraints, n_variables, handle_ptr);
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublassetpointermode(
-    handle_ptr->get_cublas_handle(), CUBLAS_POINTER_MODE_DEVICE, handle_ptr->get_stream()));
+    handle_ptr->get_cublas_handle(), CUBLAS_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
   RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(
-    handle_ptr->get_cusparse_handle(), CUSPARSE_POINTER_MODE_DEVICE, handle_ptr->get_stream()));
+    handle_ptr->get_cusparse_handle(), CUSPARSE_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
   // Resize what is needed for LP
   reverse_offsets.resize(n_variables + 1, handle_ptr->get_stream());
   reverse_constraints.resize(nnz, handle_ptr->get_stream());
@@ -1018,7 +1018,7 @@ void problem_t<i_t, f_t>::compute_related_variables(double time_limit)
                     related_variables.size() / (f_t)1e6);
 
     thrust::fill(handle_ptr->get_thrust_policy(), varmap.begin(), varmap.end(), 0);
-    compute_related_vars_unique<i_t, f_t><<<1024, 128, 0, handle_ptr->get_stream()>>>(
+    compute_related_vars_unique<i_t, f_t><<<1024, 128, 0, handle_ptr->get_stream().get()>>>(
       pb_view, slice_begin, slice_end, make_span(varmap));
 
     // prefix sum to generate offsets
@@ -1508,7 +1508,7 @@ void problem_t<i_t, f_t>::substitute_variables(const std::vector<i_t>& var_indic
                                      offsets.data() + 1,
                                      cuda::std::plus<>{},
                                      initial_value,
-                                     handle_ptr->get_stream());
+                                     handle_ptr->get_stream().get());
 
   rmm::device_uvector<std::uint8_t> temp_storage(temp_storage_bytes, handle_ptr->get_stream());
   d_temp_storage = thrust::raw_pointer_cast(temp_storage.data());
@@ -1523,7 +1523,7 @@ void problem_t<i_t, f_t>::substitute_variables(const std::vector<i_t>& var_indic
                                      offsets.data() + 1,
                                      cuda::std::plus<>{},
                                      initial_value,
-                                     handle_ptr->get_stream());
+                                     handle_ptr->get_stream().get());
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
   thrust::for_each(
     handle_ptr->get_thrust_policy(),
@@ -1632,7 +1632,7 @@ void problem_t<i_t, f_t>::fix_given_variables(problem_t<i_t, f_t>& original_prob
                                      original_problem.offsets.data() + 1,
                                      cuda::std::plus<>{},
                                      initial_value,
-                                     handle_ptr->get_stream());
+                                     handle_ptr->get_stream().get());
 
   rmm::device_uvector<std::uint8_t> temp_storage(temp_storage_bytes, handle_ptr->get_stream());
   d_temp_storage = thrust::raw_pointer_cast(temp_storage.data());
@@ -1647,7 +1647,7 @@ void problem_t<i_t, f_t>::fix_given_variables(problem_t<i_t, f_t>& original_prob
                                      original_problem.offsets.data() + 1,
                                      cuda::std::plus<>{},
                                      initial_value,
-                                     handle_ptr->get_stream());
+                                     handle_ptr->get_stream().get());
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
   thrust::for_each(
     handle_ptr->get_thrust_policy(),
@@ -1790,7 +1790,7 @@ void problem_t<i_t, f_t>::remove_given_variables(problem_t<i_t, f_t>& original_p
   presolve_data.var_flags.resize(variable_map.size(), handle_ptr->get_stream());
   const i_t TPB = 64;
   // compute new offsets
-  compute_new_offsets<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream()>>>(
+  compute_new_offsets<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream().get()>>>(
     original_problem.view(), view(), cuopt::make_span(variable_map));
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
   thrust::exclusive_scan(handle_ptr->get_thrust_policy(),
@@ -1800,7 +1800,7 @@ void problem_t<i_t, f_t>::remove_given_variables(problem_t<i_t, f_t>& original_p
   rmm::device_uvector<i_t> write_pos(n_constraints, handle_ptr->get_stream());
   thrust::fill(handle_ptr->get_thrust_policy(), write_pos.begin(), write_pos.end(), 0);
   // compute new csr
-  compute_new_csr<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream()>>>(
+  compute_new_csr<i_t, f_t><<<variable_map.size(), TPB, 0, handle_ptr->get_stream().get()>>>(
     original_problem.view(), view(), cuopt::make_span(variable_map), cuopt::make_span(write_pos));
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
   // assign nnz, number of variables etc.

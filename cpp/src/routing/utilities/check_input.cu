@@ -138,8 +138,8 @@ bool is_symmetric_matrix(f_t const* matrix, i_t width, raft::handle_t const* han
                                transposed_matrix.data_handle(),
                                width,
                                width,
-                               handle_ptr->get_stream());
-  RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream()));
+                               handle_ptr->get_stream().get());
+  RAFT_CUDA_TRY(cudaStreamSynchronize(handle_ptr->get_stream().get()));
 
   return thrust::equal(handle_ptr->get_thrust_policy(),
                        matrix,

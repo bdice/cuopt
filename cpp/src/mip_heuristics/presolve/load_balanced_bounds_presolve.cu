@@ -172,8 +172,8 @@ bool build_graph(managed_stream_pool& streams,
   cudaEvent_t fork_stream_event;
   cudaEventCreate(&fork_stream_event);
 
-  cudaStreamBeginCapture(handle_ptr->get_stream(), cudaStreamCaptureModeThreadLocal);
-  cudaEventRecord(fork_stream_event, handle_ptr->get_stream());
+  cudaStreamBeginCapture(handle_ptr->get_stream().get(), cudaStreamCaptureModeThreadLocal);
+  cudaEventRecord(fork_stream_event, handle_ptr->get_stream().get());
 
   // dry-run - managed pool tracks how many streams were issued
   d_func();
@@ -184,10 +184,10 @@ bool build_graph(managed_stream_pool& streams,
   auto activity_done = streams.create_events_on_issued();
   streams.reset_issued();
   for (auto& e : activity_done) {
-    cudaStreamWaitEvent(handle_ptr->get_stream(), e);
+    cudaStreamWaitEvent(handle_ptr->get_stream().get(), e);
   }
 
-  cudaStreamEndCapture(handle_ptr->get_stream(), &graph);
+  cudaStreamEndCapture(handle_ptr->get_stream().get(), &graph);
   RAFT_CHECK_CUDA(handle_ptr->get_stream());
 
   if (graph_exec != nullptr) {

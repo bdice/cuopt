@@ -119,7 +119,7 @@ detail::fleet_order_constraints_t<i_t> generate_fleet_order_constraints(
       n_orders - 1,
       params.min_service_time,
       params.max_service_time + 1,
-      handle.get_stream());
+      handle.get_stream().get());
   }
   return fleet_order_constraints;
 }
@@ -188,7 +188,7 @@ coordinates_t<f_t> generate_coordinates(raft::handle_t& handle,
                            params.n_locations,
                            n_cols,
                            n_clusters,
-                           handle.get_stream(),
+                           handle.get_stream().get(),
                            false,
                            (f_t*)nullptr,
                            (f_t*)nullptr,
@@ -228,7 +228,7 @@ d_mdarray_t<f_t> generate_matrices(raft::handle_t& handle,
   rmm::device_uvector<f_t> v_rands(params.n_locations * params.n_locations, handle.get_stream());
 
   detail::build_cost_matrix<i_t, f_t>
-    <<<n_blocks, n_threads, 0, handle.get_stream()>>>(cost_matrix.data(),
+    <<<n_blocks, n_threads, 0, handle.get_stream().get()>>>(cost_matrix.data(),
                                                       std::get<0>(coordinates).data(),
                                                       std::get<1>(coordinates).data(),
                                                       params.n_locations,
@@ -248,7 +248,7 @@ d_mdarray_t<f_t> generate_matrices(raft::handle_t& handle,
                             v_rands.size(),
                             static_cast<f_t>(1.1),
                             static_cast<f_t>(1.5),
-                            handle.get_stream());
+                            handle.get_stream().get());
 
       auto matrix_span = matrices.get_cost_matrix(vehicle_type, matrix_type);
 
@@ -309,7 +309,7 @@ rmm::device_uvector<cap_i_t> generate_vehicle_capacities(raft::handle_t& handle,
                              fleet_size,
                              static_cast<cap_i_t>(h_min_capacities[i]),
                              static_cast<cap_i_t>(h_max_capacities[i] + 1),
-                             handle.get_stream());
+                             handle.get_stream().get());
   }
   return capacities;
 }
@@ -334,7 +334,7 @@ rmm::device_uvector<demand_i_t> generate_demands(raft::handle_t& handle,
                              params.n_locations - 1,
                              static_cast<demand_i_t>(h_min_demand[i]),
                              static_cast<demand_i_t>(h_max_demand[i] + 1),
-                             handle.get_stream());
+                             handle.get_stream().get());
   }
   return demands;
 }
@@ -467,7 +467,7 @@ rmm ::device_uvector<i_t> create_service_time(raft::handle_t& handle,
                            v_service_time.size() - 1,
                            params.min_service_time,
                            params.max_service_time + 1,
-                           handle.get_stream());
+                           handle.get_stream().get());
   return v_service_time;
 }
 
@@ -488,7 +488,7 @@ time_window_t<i_t> generate_time_windows(raft::handle_t& handle,
   auto time_matrix    = matrices.get_time_matrix(0);
   auto v_service_time = create_service_time<i_t, f_t>(handle, params);
   detail::fill_time_windows<i_t, f_t>
-    <<<params.n_locations, 64, 0, handle.get_stream()>>>(time_matrix,
+    <<<params.n_locations, 64, 0, handle.get_stream().get()>>>(time_matrix,
                                                          v_earliest_time.data(),
                                                          v_latest_time.data(),
                                                          params.tw_tightness,

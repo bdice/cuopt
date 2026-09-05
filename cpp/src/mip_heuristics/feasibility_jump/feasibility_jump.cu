@@ -499,7 +499,7 @@ void fj_t<i_t, f_t>::climber_init(i_t climber_idx, const rmm::cuda_stream_view& 
                                   row_size_it_bin,
                                   row_size_bin_prefix_sum.data(),
                                   pb_ptr->binary_indices.size(),
-                                  climber_stream);
+                                  climber_stream.get());
     if (i == 0 && temp_storage_bytes > climber->cub_storage_bytes.size())
       climber->cub_storage_bytes.resize(temp_storage_bytes, climber_stream);
   }
@@ -510,7 +510,7 @@ void fj_t<i_t, f_t>::climber_init(i_t climber_idx, const rmm::cuda_stream_view& 
                                   row_size_it_nonbin,
                                   row_size_nonbin_prefix_sum.data(),
                                   pb_ptr->nonbinary_indices.size(),
-                                  climber_stream);
+                                  climber_stream.get());
     if (i == 0 && temp_storage_bytes > climber->cub_storage_bytes.size())
       climber->cub_storage_bytes.resize(temp_storage_bytes, climber_stream);
   }
@@ -533,7 +533,7 @@ void fj_t<i_t, f_t>::climber_init(i_t climber_idx, const rmm::cuda_stream_view& 
                                       pb_ptr->n_variables,
                                       pb_ptr->related_variables_offsets.begin(),
                                       pb_ptr->related_variables_offsets.begin() + 1,
-                                      climber_stream);
+                                      climber_stream.get());
       if (i == 0 && temp_storage_bytes > climber->cub_storage_bytes.size())
         climber->cub_storage_bytes.resize(temp_storage_bytes, climber_stream);
     }
@@ -723,7 +723,7 @@ void fj_t<i_t, f_t>::run_step_device(const rmm::cuda_stream_view& climber_stream
                                data.candidate_variables.contents.data(),
                                data.candidate_variables.set_size.data(),
                                pb_ptr->n_variables,
-                               climber_stream);
+                               climber_stream.get());
     if (compaction_temp_storage_bytes > data.cub_storage_bytes.size()) {
       data.cub_storage_bytes.resize(compaction_temp_storage_bytes, climber_stream);
     }
@@ -771,7 +771,7 @@ void fj_t<i_t, f_t>::run_step_device(const rmm::cuda_stream_view& climber_stream
                                  data.candidate_variables.contents.data(),
                                  data.candidate_variables.set_size.data(),
                                  pb_ptr->n_variables,
-                                 climber_stream);
+                                 climber_stream.get());
 
       launch_select_variable_kernel<i_t, f_t>(dim3(1), dim3(256), kernel_args, climber_stream);
 

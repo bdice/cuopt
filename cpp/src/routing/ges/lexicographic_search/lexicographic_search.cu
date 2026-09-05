@@ -713,7 +713,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
   solution_ptr->d_lock.set_value_async(zero, stream);
   global_random_counter_.set_value_async(zero, stream);
   lexicographic_search<i_t, f_t>
-    <<<n_blocks_lexico, threads_per_block_lexico, sh_size, stream>>>(solution_ptr->view(),
+    <<<n_blocks_lexico, threads_per_block_lexico, sh_size, stream.get()>>>(solution_ptr->view(),
                                                                      k_max,
                                                                      request_id,
                                                                      p_scores_.data(),
@@ -731,7 +731,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::run_lexicographic_search(
       return false;
     }
     execute_lexico_move<i_t, f_t, REQUEST>
-      <<<1, threads_per_block_lexico, shared_for_tmp_route, stream>>>(solution_ptr->view(),
+      <<<1, threads_per_block_lexico, shared_for_tmp_route, stream.get()>>>(solution_ptr->view(),
                                                                       request_id,
                                                                       global_min_p_.data(),
                                                                       global_sequence_.data(),

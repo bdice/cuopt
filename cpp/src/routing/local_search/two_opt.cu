@@ -393,7 +393,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_two_opt(
   if (!set_shmem_of_kernel(find_two_opt_moves<i_t, f_t, REQUEST>, sh_size)) { return false; }
 
   find_two_opt_moves<i_t, f_t, REQUEST>
-    <<<n_blocks, n_threads, sh_size, sol.sol_handle->get_stream()>>>(
+    <<<n_blocks, n_threads, sh_size, sol.sol_handle->get_stream().get()>>>(
       sol.view(),
       move_candidates.view(),
       cuopt::make_span(two_opt_cand_data_),
@@ -434,7 +434,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_two_opt(
                           sol.sol_handle->get_stream());
     async_fill(moved_regions_, 0, sol.sol_handle->get_stream());
     execute_recycle<i_t, f_t, REQUEST, n_threads>
-      <<<sol.get_n_routes(), n_threads, sh_size, sol.sol_handle->get_stream()>>>(
+      <<<sol.get_n_routes(), n_threads, sh_size, sol.sol_handle->get_stream().get()>>>(
         sol.view(),
         move_candidates.view(),
         cuopt::make_span(sampled_nodes_data_),
@@ -442,7 +442,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_two_opt(
   } else {
     if (!set_shmem_of_kernel(execute_two_opt_moves<i_t, f_t, REQUEST>, sh_size)) { return false; }
     execute_two_opt_moves<i_t, f_t, REQUEST>
-      <<<sol.get_n_routes(), n_threads, sh_size, sol.sol_handle->get_stream()>>>(
+      <<<sol.get_n_routes(), n_threads, sh_size, sol.sol_handle->get_stream().get()>>>(
         sol.view(),
         move_candidates.view(),
         cuopt::make_span(two_opt_cand_data_),

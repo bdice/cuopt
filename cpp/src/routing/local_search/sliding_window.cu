@@ -1065,7 +1065,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
       <<<n_blocks,  // One block for each node
          thread_per_block,
          shared_for_tmp_route,
-         solution.sol_handle->get_stream()>>>(solution.view(),
+         solution.sol_handle->get_stream().get()>>>(solution.view(),
                                               found_sliding_solution_data_.data(),
                                               move_candidates.view(),
                                               locks_.data(),
@@ -1075,7 +1075,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
       <<<n_blocks,  // One block for each node
          thread_per_block,
          shared_for_tmp_route,
-         solution.sol_handle->get_stream()>>>(solution.view(),
+         solution.sol_handle->get_stream().get()>>>(solution.view(),
                                               found_sliding_solution_data_.data(),
                                               move_candidates.view(),
                                               locks_.data(),
@@ -1104,7 +1104,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
 
   // One block for each found route
   execute_sliding_move<i_t, f_t, REQUEST>
-    <<<solution.n_routes, 256, aligned_shared_size, solution.sol_handle->get_stream()>>>(
+    <<<solution.n_routes, 256, aligned_shared_size, solution.sol_handle->get_stream().get()>>>(
       solution.view(),
       found_sliding_solution_data_.data(),
       move_candidates.view(),

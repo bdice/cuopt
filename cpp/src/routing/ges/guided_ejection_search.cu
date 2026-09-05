@@ -270,7 +270,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::guided_ejection_search_loop(i_
     }
 
     // Increase penalty counter for this request
-    incr_p_scores<i_t><<<1, 1, 0, solution_ptr->sol_handle->get_stream()>>>(
+    incr_p_scores<i_t><<<1, 1, 0, solution_ptr->sol_handle->get_stream().get()>>>(
       request, p_scores_.data(), depot_included);
 
     RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());

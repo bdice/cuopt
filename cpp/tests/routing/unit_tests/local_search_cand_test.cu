@@ -357,7 +357,7 @@ class routing_ges_test_t : public ::testing::TestWithParam<std::tuple<bool, test
     } else if (this->test_type == test_t::INFEASIBLE) {
       double w[] = {100., 10000., 100., 100., 100.};
       introduce_infeasibility<i_t, f_t, REQUEST>
-        <<<1, 1, 0, sol.sol_handle->get_stream()>>>(sol.view());
+        <<<1, 1, 0, sol.sol_handle->get_stream().get()>>>(sol.view());
       sol.set_nodes_data_of_solution();
       sol.compute_initial_data();
       f_t old_cost = sol.get_total_cost(w);

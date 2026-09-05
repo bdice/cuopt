@@ -308,7 +308,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::execute_best_insertion_ejectio
     <<<1,
        1024,
        shared_for_delete_array + shared_for_tmp_route,
-       solution_ptr->sol_handle->get_stream()>>>(solution_ptr->view(),
+       solution_ptr->sol_handle->get_stream().get()>>>(solution_ptr->view(),
                                                  d_request,
                                                  (uint64_t*)feasible_candidates_data_.data(),
                                                  EP.view(),
@@ -365,7 +365,7 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::perform_insertion(
   }
 
   execute_feasible_insert<i_t, f_t, REQUEST>
-    <<<1, 1024, shared_for_tmp_route, solution_ptr->sol_handle->get_stream()>>>(
+    <<<1, 1024, shared_for_tmp_route, solution_ptr->sol_handle->get_stream().get()>>>(
       solution_ptr->view(), request, selected_candidate);
   RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream());
   return true;
@@ -398,7 +398,7 @@ i_t guided_ejection_search_t<i_t, f_t, REQUEST>::find_single_insertion(
     <<<grid_size,
        threads_per_block,
        shared_for_tmp_route,
-       solution_ptr->sol_handle->get_stream()>>>(
+       solution_ptr->sol_handle->get_stream().get()>>>(
       solution_ptr->view(),
       request,
       feasible_move_t(cuopt::make_span(feasible_candidates_data_),

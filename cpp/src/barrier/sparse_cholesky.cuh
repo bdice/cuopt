@@ -144,7 +144,7 @@ class sparse_cholesky_cudss_t : public sparse_cholesky_base_t<i_t, f_t> {
       positive_definite(true),
       A_created(false),
       settings_(settings),
-      stream(handle_ptr->get_stream())
+      stream(handle_ptr->get_stream().get())
   {
     int major, minor, patch;
     cudssGetProperty(MAJOR_VERSION, &major);
@@ -221,7 +221,7 @@ class sparse_cholesky_cudss_t : public sparse_cholesky_base_t<i_t, f_t> {
       // 4. Create the green context and stream for that green
       // context CUstream barrier_green_ctx_stream;
       i_t stream_priority;
-      cudaStream_t cuda_stream    = handle_ptr_->get_stream();
+      cudaStream_t cuda_stream    = handle_ptr_->get_stream().get();
       cudaError_t priority_result = cudaStreamGetPriority(cuda_stream, &stream_priority);
       RAFT_CUDA_TRY(priority_result);
       auto cuGreenCtxCreate_func = cuopt::get_driver_entry_point("cuGreenCtxCreate");

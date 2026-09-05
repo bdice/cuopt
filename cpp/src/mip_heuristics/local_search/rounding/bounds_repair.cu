@@ -254,7 +254,7 @@ void bounds_repair_t<i_t, f_t>::compute_damages(problem_t<i_t, f_t>& problem, i_
   CUOPT_LOG_TRACE("Bounds repair: Computing damanges!");
   // TODO check performance, we can apply load balancing here
   const i_t TPB = 256;
-  compute_damages_kernel<i_t, f_t><<<n_candidates, TPB, 0, handle_ptr->get_stream()>>>(
+  compute_damages_kernel<i_t, f_t><<<n_candidates, TPB, 0, handle_ptr->get_stream().get()>>>(
     problem.view(),
     candidates.view(),
     make_span(cstr_violations_up),

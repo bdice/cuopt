@@ -659,7 +659,7 @@ class iteration_data_t {
         d_inv_diag_prime.data(),
         d_num_flag.data(),
         inv_diag.size(),
-        stream_view_));
+        stream_view_.get()));
 
       d_flag_buffer.resize(flag_buffer_size, stream_view_);
     }
@@ -1103,7 +1103,7 @@ class iteration_data_t {
           d_inv_diag_prime.data(),
           d_num_flag.data(),
           d_inv_diag.size(),
-          stream_view_);
+          stream_view_.get());
         RAFT_CHECK_CUDA(stream_view_);
       } else {
         d_inv_diag_prime.resize(inv_diag.size(), stream_view_);
@@ -3024,7 +3024,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
   {
     raft::common::nvtx::range fun_scope("Barrier: GPU assemble primal RHS");
     RAFT_CUDA_TRY(
-      cudaMemsetAsync(data.d_tmp3_.data(), 0, sizeof(f_t) * data.d_tmp3_.size(), stream_view_));
+      cudaMemsetAsync(data.d_tmp3_.data(), 0, sizeof(f_t) * data.d_tmp3_.size(), stream_view_.get()));
     if (data.n_upper_bounds > 0) {
       cub::DeviceTransform::Transform(
         cuda::std::make_tuple(data.d_bound_rhs_.data(),
@@ -3131,7 +3131,7 @@ i_t barrier_solver_t<i_t, f_t>::gpu_compute_search_direction(iteration_data_t<i_
       data.d_dy_.data(), data.d_augmented_soln_.data() + lp.num_cols, lp.num_rows, stream_view_);
     {
       raft::common::nvtx::range fun_scope("Barrier: augmented solve sync");
-      RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_));
+      RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
     }
 
     // TMP should only be init once
@@ -3861,14 +3861,14 @@ void barrier_solver_t<i_t, f_t>::compute_cc_rhs(iteration_data_t<i_t, f_t>& data
     stream_view_.get());
   RAFT_CHECK_CUDA(stream_view_);
   // Zero the corrector RHS on device
-  RAFT_CUDA_TRY(cudaMemsetAsync(data.d_h_.data(), 0, sizeof(f_t) * data.d_h_.size(), stream_view_));
+  RAFT_CUDA_TRY(cudaMemsetAsync(data.d_h_.data(), 0, sizeof(f_t) * data.d_h_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    data.d_dual_rhs_.data(), 0, sizeof(f_t) * data.d_dual_rhs_.size(), stream_view_));
+    data.d_dual_rhs_.data(), 0, sizeof(f_t) * data.d_dual_rhs_.size(), stream_view_.get()));
   if (data.n_upper_bounds > 0) {
     RAFT_CUDA_TRY(cudaMemsetAsync(
-      data.d_bound_rhs_.data(), 0, sizeof(f_t) * data.d_bound_rhs_.size(), stream_view_));
+      data.d_bound_rhs_.data(), 0, sizeof(f_t) * data.d_bound_rhs_.size(), stream_view_.get()));
     RAFT_CUDA_TRY(
-      cudaMemsetAsync(data.d_dw_.data(), 0, sizeof(f_t) * data.d_dw_.size(), stream_view_));
+      cudaMemsetAsync(data.d_dw_.data(), 0, sizeof(f_t) * data.d_dw_.size(), stream_view_.get()));
   }
   data.cone_combined_step_ = has_soc;
   data.cone_sigma_mu_      = has_soc ? new_mu : f_t(0);
@@ -4198,7 +4198,7 @@ lp_status_t barrier_solver_t<i_t, f_t>::check_for_suboptimal_solution(
     raft::copy(data.y.data(), data.d_y_.data(), data.d_y_.size(), stream_view_);
     raft::copy(data.z.data(), data.d_z_.data(), data.d_z_.size(), stream_view_);
     raft::copy(data.v.data(), data.d_v_.data(), data.d_v_.size(), stream_view_);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_));
+    RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
     data.to_solution(lp,
                      iter,
                      primal_objective,
@@ -4589,7 +4589,7 @@ lp_status_t barrier_solver_t<i_t, f_t>::solve(f_t start_time, lp_solution_t<i_t,
           raft::copy(data.y.data(), data.d_y_.data(), data.d_y_.size(), stream_view_);
           raft::copy(data.v.data(), data.d_v_.data(), data.d_v_.size(), stream_view_);
           raft::copy(data.z.data(), data.d_z_.data(), data.d_z_.size(), stream_view_);
-          RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_));
+          RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
           data.w_save                                 = data.w;
           data.x_save                                 = data.x;
           data.y_save                                 = data.y;
@@ -4659,7 +4659,7 @@ lp_status_t barrier_solver_t<i_t, f_t>::solve(f_t start_time, lp_solution_t<i_t,
         raft::copy(data.y.data(), data.d_y_.data(), data.d_y_.size(), stream_view_);
         raft::copy(data.z.data(), data.d_z_.data(), data.d_z_.size(), stream_view_);
         raft::copy(data.v.data(), data.d_v_.data(), data.d_v_.size(), stream_view_);
-        RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_));
+        RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
         data.to_solution(lp,
                          iter,
                          primal_objective,
@@ -4699,7 +4699,7 @@ lp_status_t barrier_solver_t<i_t, f_t>::solve(f_t start_time, lp_solution_t<i_t,
     raft::copy(data.y.data(), data.d_y_.data(), data.d_y_.size(), stream_view_);
     raft::copy(data.z.data(), data.d_z_.data(), data.d_z_.size(), stream_view_);
     raft::copy(data.v.data(), data.d_v_.data(), data.d_v_.size(), stream_view_);
-    RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_));
+    RAFT_CUDA_TRY(cudaStreamSynchronize(stream_view_.get()));
     data.to_solution(lp,
                      iter,
                      primal_objective,

@@ -24,7 +24,7 @@ auto compute_route_costs(solution_t<i_t, f_t, REQUEST>& sol,
   if (!is_set) { return false; }
 
   compute_route_costs_kernel<i_t, f_t, REQUEST>
-    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream()>>>(
+    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream().get()>>>(
       sol.view(), move_candidates.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
   return true;
@@ -44,7 +44,7 @@ auto compute_route_cost_differences(solution_t<i_t, f_t, REQUEST>& sol,
   if (!is_set) { return false; }
 
   compute_route_cost_differences_kernel<i_t, f_t, REQUEST, TPB>
-    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream()>>>(sol.view(), vehicle_assignment.view());
+    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream().get()>>>(sol.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
   return true;
 }
@@ -61,7 +61,7 @@ auto compute_route_vehicle_assignments(solution_t<i_t, f_t, REQUEST>& sol,
   if (!is_set) { return false; }
 
   compute_route_vehicle_assignments_kernel<i_t, f_t, REQUEST>
-    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream()>>>(sol.view(), vehicle_assignment.view());
+    <<<n_blocks, TPB, shmem, sol.sol_handle->get_stream().get()>>>(sol.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
   return true;
 }
@@ -77,7 +77,7 @@ auto update_assignment(solution_t<i_t, f_t, REQUEST>& sol,
   if (!is_set) { return false; }
 
   auto k_iter = vehicle_assignment.get_k_regrets() - 1;
-  update_assignment_kernel<i_t, f_t, REQUEST><<<k_iter, TPB, shmem, sol.sol_handle->get_stream()>>>(
+  update_assignment_kernel<i_t, f_t, REQUEST><<<k_iter, TPB, shmem, sol.sol_handle->get_stream().get()>>>(
     sol.view(), move_candidates.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
   return true;
@@ -91,7 +91,7 @@ void reset_vehicle_availability(solution_t<i_t, f_t, REQUEST>& sol,
   async_fill(vehicle_assignment.vehicle_availability, -1, sol.sol_handle->get_stream());
   auto k_iter = vehicle_assignment.get_k_regrets() - 1;
   reset_vehicle_availability_kernel<i_t, f_t, REQUEST>
-    <<<k_iter, TPB, 0, sol.sol_handle->get_stream()>>>(sol.view(), vehicle_assignment.view());
+    <<<k_iter, TPB, 0, sol.sol_handle->get_stream().get()>>>(sol.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
 }
 
@@ -142,7 +142,7 @@ auto find_best_assignment(solution_t<i_t, f_t, REQUEST>& sol,
   bool is_set          = set_shmem_of_kernel(find_best_assignment_kernel<i_t, f_t, REQUEST>, shmem);
   if (!is_set) { return false; }
   find_best_assignment_kernel<i_t, f_t, REQUEST>
-    <<<1, TPB, shmem, sol.sol_handle->get_stream()>>>(sol.view(), vehicle_assignment.view());
+    <<<1, TPB, shmem, sol.sol_handle->get_stream().get()>>>(sol.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
   return true;
 }
@@ -159,7 +159,7 @@ auto update_solution(solution_t<i_t, f_t, REQUEST>& sol,
   bool is_set        = set_shmem_of_kernel(update_solution_kernel<i_t, f_t, REQUEST>, shmem);
   if (!is_set) { return false; }
   update_solution_kernel<i_t, f_t, REQUEST>
-    <<<sol.get_n_routes(), TPB, shmem, sol.sol_handle->get_stream()>>>(
+    <<<sol.get_n_routes(), TPB, shmem, sol.sol_handle->get_stream().get()>>>(
       sol.view(), move_candidates.view(), vehicle_assignment.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream());
 

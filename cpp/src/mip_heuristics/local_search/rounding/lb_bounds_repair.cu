@@ -269,7 +269,7 @@ void lb_bounds_repair_t<i_t, f_t>::compute_damages(
   const i_t TPB = 256;
   using f_t2    = typename type_2<f_t>::type;
   compute_damages_kernel<i_t, f_t, f_t2>
-    <<<n_candidates, TPB, 0, handle_ptr->get_stream()>>>(original_problem.view(),
+    <<<n_candidates, TPB, 0, handle_ptr->get_stream().get()>>>(original_problem.view(),
                                                          candidates.view(),
                                                          make_span_2(problem.variable_bounds),
                                                          make_span(cstr_violations_up),

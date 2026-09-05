@@ -111,9 +111,9 @@ convergence_information_t<i_t, f_t>::convergence_information_t(
 
   // Zero the residual workspace (reused each iteration by compute_convergence_information).
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_));
+    primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(
-    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_));
+    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
 }
 
 // ---------------------------------------------------------------------------
@@ -285,7 +285,7 @@ void convergence_information_t<i_t, f_t>::init_reduction_storage()
                          bound_value_.begin(),
                          dual_objective_.data(),
                          dual_size_h_,
-                         stream_view_);
+                         stream_view_.get());
 
   size_t temp_storage_bytes_2 = 0;
   cub::DeviceReduce::Sum(d_temp_storage,
@@ -293,7 +293,7 @@ void convergence_information_t<i_t, f_t>::init_reduction_storage()
                          bound_value_.begin(),
                          reduced_cost_dual_objective_.data(),
                          primal_size_h_,
-                         stream_view_);
+                         stream_view_.get());
 
   size_of_buffer_       = std::max({temp_storage_bytes_1, temp_storage_bytes_2});
   this->rmm_tmp_buffer_ = rmm::device_buffer{size_of_buffer_, stream_view_};
@@ -359,7 +359,7 @@ void convergence_information_t<i_t, f_t>::swap_context(
   const auto [grid_size, block_size] =
     kernel_config_from_batch_size(static_cast<i_t>(swap_pairs.size()));
   convergence_information_swap_device_vectors_kernel<i_t, f_t>
-    <<<grid_size, block_size, 0, stream_view_>>>(thrust::raw_pointer_cast(swap_pairs.data()),
+    <<<grid_size, block_size, 0, stream_view_.get()>>>(thrust::raw_pointer_cast(swap_pairs.data()),
                                                  static_cast<i_t>(swap_pairs.size()),
                                                  make_span(primal_objective_),
                                                  make_span(dual_objective_),
@@ -690,14 +690,14 @@ void convergence_information_t<i_t, f_t>::compute_convergence_information(
   // behaviour
   const auto [grid_size, block_size] = kernel_config_from_batch_size(climber_strategies_.size());
   compute_remaining_stats_kernel<i_t, f_t>
-    <<<grid_size, block_size, 0, stream_view_>>>(this->view(), climber_strategies_.size());
+    <<<grid_size, block_size, 0, stream_view_.get()>>>(this->view(), climber_strategies_.size());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   //  cleanup for next termination evaluation
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_));
+    primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(
-    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_));
+    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
 }
 
 template <typename f_t>
@@ -726,7 +726,7 @@ void convergence_information_t<i_t, f_t>::compute_primal_residual(
                                          cusparse_view.tmp_dual.get(),
                                          CUSPARSE_SPMV_CSR_ALG2,
                                          (f_t*)cusparse_view.buffer_non_transpose.data(),
-                                         stream_view_));
+                                         stream_view_.get()));
   } else {
     RAFT_CUSPARSE_TRY(
       raft::sparse::detail::cusparsespmm(handle_ptr_->get_cusparse_handle(),
@@ -739,7 +739,7 @@ void convergence_information_t<i_t, f_t>::compute_primal_residual(
                                          cusparse_view.batch_tmp_duals.get(),
                                          CUSPARSE_SPMM_CSR_ALG3,
                                          (f_t*)cusparse_view.buffer_non_transpose_batch.data(),
-                                         stream_view_));
+                                         stream_view_.get()));
   }
 
   if (!hyper_params_.use_reflected_primal_dual) {
@@ -754,7 +754,7 @@ void convergence_information_t<i_t, f_t>::compute_primal_residual(
                                                  problem_ptr->constraint_upper_bounds.data(),
                                                  dual_size_h_,
                                                  violation<f_t>(),
-                                                 stream_view_);
+                                                 stream_view_.get());
   } else {
     cuopt_assert(primal_residual_.size() == primal_slack_.size(),
                  "Both vectors should had the same size");
@@ -811,7 +811,7 @@ void convergence_information_t<i_t, f_t>::compute_primal_objective_owned_partial
                                                   problem_ptr->objective_coefficients.data(),
                                                   primal_stride,
                                                   primal_objective_.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
 }
 
 template <typename i_t, typename f_t>
@@ -846,7 +846,7 @@ template <typename i_t, typename f_t>
 void convergence_information_t<i_t, f_t>::apply_primal_objective_scaling_and_offset()
 {
   const auto [grid_size, block_size] = kernel_config_from_batch_size(climber_strategies_.size());
-  apply_objective_scaling_and_offset<i_t, f_t><<<grid_size, block_size, 0, stream_view_>>>(
+  apply_objective_scaling_and_offset<i_t, f_t><<<grid_size, block_size, 0, stream_view_.get()>>>(
     make_span(primal_objective_),
     problem_ptr->presolve_data.objective_scaling_factor,
     make_span(objective_offsets_),
@@ -888,7 +888,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_residual(
                                          cusparse_view.tmp_primal.get(),
                                          CUSPARSE_SPMV_CSR_ALG2,
                                          (f_t*)cusparse_view.buffer_transpose.data(),
-                                         stream_view_));
+                                         stream_view_.get()));
   } else {
     RAFT_CUSPARSE_TRY(
       raft::sparse::detail::cusparsespmm(handle_ptr_->get_cusparse_handle(),
@@ -901,7 +901,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_residual(
                                          cusparse_view.batch_tmp_primals.get(),
                                          CUSPARSE_SPMM_CSR_ALG3,
                                          (f_t*)cusparse_view.buffer_transpose_batch.data(),
-                                         stream_view_));
+                                         stream_view_.get()));
   }
 
   // Substract with the objective vector manually to avoid possible cusparse bug w/ nonzero beta and
@@ -935,7 +935,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_residual(
                              tmp_primal.data(),  // primal_gradient
                              reduced_cost_.data(),
                              primal_size_h_,
-                             stream_view_);
+                             stream_view_.get());
   }
 }
 
@@ -963,7 +963,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective_owned_partial(
                                                   primal_solution.data(),
                                                   primal_stride,
                                                   dual_dot_.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
 
   // sum_primal_slack_ = Σ primal_slack_[0:n_owned_cstr]
   // primal_slack_ is assumed populated for owned cstrs by a prior
@@ -973,7 +973,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective_owned_partial(
                          primal_slack_.data(),
                          sum_primal_slack_.data(),
                          static_cast<int>(n_owned_cstr),
-                         stream_view_);
+                         stream_view_.get());
 
   // dual_objective_ = dual_dot_ + sum_primal_slack_ (still a partial sum).
   cub::DeviceTransform::Transform(cuda::std::make_tuple(dual_dot_.data(), sum_primal_slack_.data()),
@@ -1008,14 +1008,14 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective(
                             problem_ptr->constraint_upper_bounds.data(),
                             dual_size_h_,
                             constraint_bound_value_reduced_cost_product<f_t>(),
-                            stream_view_);
+                            stream_view_.get());
 
     cub::DeviceReduce::Sum(rmm_tmp_buffer_.data(),
                            size_of_buffer_,
                            bound_value_.begin(),
                            dual_objective_.data(),
                            dual_size_h_,
-                           stream_view_);
+                           stream_view_.get());
 
     compute_reduced_costs_dual_objective_contribution();
 
@@ -1023,7 +1023,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective(
                              dual_objective_.data(),
                              reduced_cost_dual_objective_.data(),
                              1,
-                             stream_view_);
+                             stream_view_.get());
   } else {
     // Reflected path.
     if (!batch_mode_) {
@@ -1064,7 +1064,7 @@ template <typename i_t, typename f_t>
 void convergence_information_t<i_t, f_t>::apply_dual_objective_scaling_and_offset()
 {
   const auto [grid_size, block_size] = kernel_config_from_batch_size(climber_strategies_.size());
-  apply_objective_scaling_and_offset<i_t, f_t><<<grid_size, block_size, 0, stream_view_>>>(
+  apply_objective_scaling_and_offset<i_t, f_t><<<grid_size, block_size, 0, stream_view_.get()>>>(
     make_span(dual_objective_),
     problem_ptr->presolve_data.objective_scaling_factor,
     make_span(objective_offsets_),
@@ -1093,14 +1093,14 @@ void convergence_information_t<i_t, f_t>::compute_reduced_cost_from_primal_gradi
                             primal_gradient.data(),
                             primal_size_h_,
                             copy_gradient_if_should_be_reduced_cost<f_t>(),
-                            stream_view_);
+                            stream_view_.get());
   } else {
     raft::linalg::binaryOp(reduced_cost_.data(),
                            bound_value_.data(),
                            primal_gradient.data(),
                            primal_size_h_,
                            copy_gradient_if_finite_bounds<f_t>(),
-                           stream_view_);
+                           stream_view_.get());
   }
 }
 
@@ -1125,7 +1125,7 @@ void convergence_information_t<i_t, f_t>::compute_reduced_costs_dual_objective_c
                          bound_value_.begin(),
                          reduced_cost_dual_objective_.data(),
                          primal_size_h_,
-                         stream_view_);
+                         stream_view_.get());
 }
 
 template <typename i_t, typename f_t>

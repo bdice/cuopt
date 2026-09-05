@@ -372,7 +372,7 @@ void lb_constraint_prop_t<i_t, f_t>::sort_by_implied_slack_consumption(
   const i_t block_dim = 128;
   lb_bounds_update.calculate_constraint_slack(original_problem.handle_ptr);
   compute_implied_slack_consumption_per_var<i_t, f_t, f_t2>
-    <<<vars.size(), block_dim, 0, original_problem.handle_ptr->get_stream()>>>(
+    <<<vars.size(), block_dim, 0, original_problem.handle_ptr->get_stream().get()>>>(
       original_problem.view(),
       vars,
       make_span_2(lb_bounds_update.cnst_slack),

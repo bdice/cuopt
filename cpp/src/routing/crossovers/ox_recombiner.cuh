@@ -592,7 +592,7 @@ struct OX {
                                         num_segments,
                                         row_offsets.data(),
                                         row_offsets.data() + 1,
-                                        stream_view);
+                                        stream_view.get());
     d_tmp_storage_bytes.resize(tmp_storage_bytes, stream_view);
     cub::DeviceSegmentedSort::SortPairs(d_tmp_storage_bytes.data(),
                                         tmp_storage_bytes,
@@ -604,7 +604,7 @@ struct OX {
                                         num_segments,
                                         row_offsets.data(),
                                         row_offsets.data() + 1,
-                                        stream_view);
+                                        stream_view.get());
     RAFT_CHECK_CUDA(stream_view);
 
     thrust::gather(policy, val_map.begin(), val_map.end(), graph.buckets.data(), gather_int.data());
@@ -622,7 +622,7 @@ struct OX {
     auto const n_blocks      = n_buckets * d_graph.get_num_vertices();
 
     transpose_graph.reset(A.sol.sol_handle);
-    transpose_graph_kernel<int, float><<<n_blocks, TPB, 0, A.sol.sol_handle->get_stream()>>>(
+    transpose_graph_kernel<int, float><<<n_blocks, TPB, 0, A.sol.sol_handle->get_stream().get()>>>(
       d_graph.view(), transpose_graph.view(), max_route_len);
     RAFT_CHECK_CUDA(A.sol.sol_handle->get_stream());
     sort_graph_edges<int, float>(A, transpose_graph);
@@ -646,7 +646,7 @@ struct OX {
     async_fill(d_path_cost, std::numeric_limits<double>::max(), A.sol.sol_handle->get_stream());
     async_fill(d_predecessor, -1, A.sol.sol_handle->get_stream());
     async_fill(d_predecessor_vehicle, -1, A.sol.sol_handle->get_stream());
-    bellman_ford_init<int, double><<<1, 1, 0, A.sol.sol_handle->get_stream()>>>(
+    bellman_ford_init<int, double><<<1, 1, 0, A.sol.sol_handle->get_stream().get()>>>(
       raft::device_span<double>(d_path_cost.data(), d_path_cost.size()),
       raft::device_span<int>(d_predecessor.data(), d_predecessor.size()),
       raft::device_span<int>(d_predecessor_vehicle.data(), d_predecessor_vehicle.size()));
@@ -665,7 +665,7 @@ struct OX {
       // routes number exceeds num nodes. Stop the search here
       if (n_blocks == 0) { break; }
       bellman_ford_kernel<int, float, Solution::request_type>
-        <<<n_blocks, TPB, 0, A.sol.sol_handle->get_stream()>>>(
+        <<<n_blocks, TPB, 0, A.sol.sol_handle->get_stream().get()>>>(
           A.sol.view(),
           transpose_graph.view(),
           raft::device_span<double>(d_path_cost.data(), d_path_cost.size()),
@@ -971,7 +971,7 @@ struct OX {
       return;
     }
     calculate_edge_costs_kernel<int, float, Solution::request_type>
-      <<<n_blocks, 128, shmem, A.sol.sol_handle->get_stream()>>>(
+      <<<n_blocks, 128, shmem, A.sol.sol_handle->get_stream().get()>>>(
         A.sol.view(),
         d_graph.view(),
         raft::device_span<int>(d_offspring.data(), d_offspring.size()),

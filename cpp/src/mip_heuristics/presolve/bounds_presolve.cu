@@ -100,7 +100,7 @@ void bound_presolve_t<i_t, f_t>::calculate_activity(problem_t<i_t, f_t>& pb)
 
   constexpr auto n_threads = 256;
   calc_activity_kernel<i_t, f_t, n_threads>
-    <<<pb.n_constraints, n_threads, 0, pb.handle_ptr->get_stream()>>>(pb.view(), upd.view());
+    <<<pb.n_constraints, n_threads, 0, pb.handle_ptr->get_stream().get()>>>(pb.view(), upd.view());
 }
 
 template <typename i_t, typename f_t>
@@ -122,7 +122,7 @@ bool bound_presolve_t<i_t, f_t>::calculate_bounds_update(problem_t<i_t, f_t>& pb
     pb.tolerances.absolute_tolerance / context.settings.semi_continuous_big_m;
   upd.bounds_changed.set_value_async(zero, pb.handle_ptr->get_stream());
   update_bounds_kernel<i_t, f_t, n_threads>
-    <<<pb.n_variables, n_threads, 0, pb.handle_ptr->get_stream()>>>(pb.view(), upd.view());
+    <<<pb.n_variables, n_threads, 0, pb.handle_ptr->get_stream().get()>>>(pb.view(), upd.view());
   RAFT_CHECK_CUDA(pb.handle_ptr->get_stream());
   i_t h_bounds_changed = upd.bounds_changed.value(pb.handle_ptr->get_stream());
   return h_bounds_changed != zero;
