@@ -263,7 +263,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         if (isfinite(upper)) primal_to_return = cuda::std::min(primal_to_return, f_t(0.0));
         return primal_to_return;
       },
-      stream_view_);
+      stream_view_.get());
 
     // Inf norm of primal ray
     segmented_sum_handler_.segmented_reduce_helper(primal_ray.data(),
@@ -285,7 +285,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         if (!isfinite(upper)) dual_to_return = cuda::std::max(dual_to_return, f_t(0.0));
         return dual_to_return;
       },
-      stream_view_);
+      stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
     print("delta_primal_solution after", primal_ray);
@@ -308,7 +308,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         if (primal_ray_inf_norm_value > f_t(0.0))
           primal_ray_data[id] = primal_ray_data[id] / primal_ray_inf_norm_value;
       },
-      stream_view_);
+      stream_view_.get());
 #ifdef CUPDLP_DEBUG_MODE
     print("delta_primal_solution after scale", primal_ray);
     print("delta_dual_solution after scale", dual_ray);
@@ -375,7 +375,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         return cuda::std::max(dual, f_t(0.0)) * finite_or_zero(lower) +
                cuda::std::min(dual, f_t(0.0)) * finite_or_zero(upper);
       },
-      stream_view_);
+      stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
     print("primal_slack", primal_slack_);
@@ -393,7 +393,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         return cuda::std::max(-dual, f_t(0.0)) * finite_or_zero(lower) +
                cuda::std::min(-dual, f_t(0.0)) * finite_or_zero(upper);
       },
-      stream_view_);
+      stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
     print("dual_slack", dual_slack_);
@@ -426,7 +426,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
                 cuda::std::max(primal, f_t(0.0)) * isfinite(upper)) *
                scale;
       },
-      stream_view_);
+      stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
     print("primal_slack", primal_slack_);
@@ -447,7 +447,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
                 cuda::std::min(-dual, f_t(0.0)) * !isfinite(upper)) *
                scale;
       },
-      stream_view_);
+      stream_view_.get());
 #ifdef CUPDLP_DEBUG_MODE
     print("dual_slack", dual_slack_);
 #endif
@@ -493,7 +493,7 @@ void infeasibility_information_t<i_t, f_t>::compute_infeasibility_information(
         else
           return {f_t(0.0), f_t(0.0)};
       },
-      stream_view_);
+      stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
     printf("max_dual_ray_infeasibility=%lf\n",
@@ -722,7 +722,7 @@ void infeasibility_information_t<i_t, f_t>::compute_reduced_costs_dual_objective
     bound_value_.data(),
     primal_size_h_,
     bound_value_reduced_cost_product<f_t, f_t2>(),
-    stream_view_);
+    stream_view_.get());
 
   // sum over bound_value*reduced_cost
   cub::DeviceReduce::Sum(rmm_tmp_buffer_.data(),

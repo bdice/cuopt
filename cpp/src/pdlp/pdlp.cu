@@ -592,7 +592,7 @@ void pdlp_solver_t<i_t, f_t>::set_initial_primal_solution(
                                   initial_primal_.data(),
                                   initial_primal_.size(),
                                   cuda::std::identity{},
-                                  stream_view_);
+                                  stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -606,7 +606,7 @@ void pdlp_solver_t<i_t, f_t>::set_initial_dual_solution(
                                   initial_dual_.data(),
                                   initial_dual_.size(),
                                   cuda::std::identity{},
-                                  stream_view_);
+                                  stream_view_.get());
 }
 
 static bool time_limit_reached(const timer_t& timer) { return timer.check_time_limit(); }

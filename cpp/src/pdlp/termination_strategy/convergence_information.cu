@@ -415,7 +415,7 @@ void convergence_information_t<i_t, f_t>::set_relative_primal_tolerance_factor(
                                   l2_norm_primal_right_hand_side_.data(),
                                   l2_norm_primal_right_hand_side_.size(),
                                   cuda::std::identity{},
-                                  stream_view_);
+                                  stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -599,7 +599,7 @@ void convergence_information_t<i_t, f_t>::compute_convergence_information(
       l2_primal_residual_.data(),
       l2_primal_residual_.size(),
       [] HD(f_t x) { return raft::sqrt(x); },
-      stream_view_);
+      stream_view_.get());
   }
 
 #ifdef CUPDLP_DEBUG_MODE
@@ -668,7 +668,7 @@ void convergence_information_t<i_t, f_t>::compute_convergence_information(
       l2_dual_residual_.data(),
       l2_dual_residual_.size(),
       [] HD(f_t x) { return raft::sqrt(x); },
-      stream_view_);
+      stream_view_.get());
   }
 #ifdef CUPDLP_DEBUG_MODE
   print("Absolute Dual Residual", l2_dual_residual_);
@@ -914,7 +914,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_residual(
     tmp_primal.data(),
     tmp_primal.size(),
     cuda::std::minus<>{},
-    stream_view_);
+    stream_view_.get());
 
   if (hyper_params_.use_reflected_primal_dual) {
     cuopt_assert(reduced_cost_.size() == dual_slack.size(),
@@ -982,7 +982,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective_owned_partial(
                                   dual_objective_.data(),
                                   1,
                                   cuda::std::plus<>{},
-                                  stream_view_);
+                                  stream_view_.get());
 }
 
 template <typename i_t, typename f_t>
@@ -1050,7 +1050,7 @@ void convergence_information_t<i_t, f_t>::compute_dual_objective(
         dual_objective_.data(),
         dual_objective_.size(),
         cuda::std::plus<>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 

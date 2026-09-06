@@ -234,7 +234,7 @@ class top_cand_test_t : public routing_test_t<i_t, f_t>, public ::testing::TestW
                                         num_segments,
                                         segment_marker.data(),
                                         segment_marker.data() + 1,
-                                        this->stream_view_);
+                                        this->stream_view_.get());
     rmm::device_uvector<std::byte> d_cub_storage_bytes(0, this->stream_view_);
     d_cub_storage_bytes.resize(tmp_storage_bytes, this->stream_view_);
     double elapsed_ms;
@@ -252,7 +252,7 @@ class top_cand_test_t : public routing_test_t<i_t, f_t>, public ::testing::TestW
                                             num_segments,
                                             segment_marker.data(),
                                             segment_marker.data() + 1,
-                                            this->stream_view_);
+                                            this->stream_view_.get());
       }
       this->stream_view_.sync();
     }
