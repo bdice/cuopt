@@ -1975,9 +1975,9 @@ void pdlp_restart_strategy_t<i_t, f_t>::solve_bound_constrained_trust_region(
     high_radius_squared_.set_value_async(zero_float, stream_view_);
     low_radius_squared_.set_value_async(zero_float, stream_view_);
     RAFT_CUDA_TRY(cudaMemsetAsync(
-      direction_full_.data(), 0, sizeof(f_t) * (primal_size_h_ + dual_size_h_), stream_view_));
+      direction_full_.data(), 0, sizeof(f_t) * (primal_size_h_ + dual_size_h_), stream_view_.get()));
     RAFT_CUDA_TRY(cudaMemsetAsync(
-      threshold_.data(), 0, sizeof(f_t) * (primal_size_h_ + dual_size_h_), stream_view_));
+      threshold_.data(), 0, sizeof(f_t) * (primal_size_h_ + dual_size_h_), stream_view_.get()));
     /* ----- */
 
     // Determine the direction which each component has moved and the threshold for when the

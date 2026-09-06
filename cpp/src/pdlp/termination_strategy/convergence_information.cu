@@ -90,20 +90,20 @@ convergence_information_t<i_t, f_t>::convergence_information_t(
 {
   // Zero-init per-climber scalars
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    primal_objective_.data(), 0, sizeof(f_t) * primal_objective_.size(), stream_view_));
+    primal_objective_.data(), 0, sizeof(f_t) * primal_objective_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(
-    cudaMemsetAsync(dual_objective_.data(), 0, sizeof(f_t) * dual_objective_.size(), stream_view_));
-  RAFT_CUDA_TRY(cudaMemsetAsync(gap_.data(), 0, sizeof(f_t) * gap_.size(), stream_view_));
+    cudaMemsetAsync(dual_objective_.data(), 0, sizeof(f_t) * dual_objective_.size(), stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(gap_.data(), 0, sizeof(f_t) * gap_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(
-    cudaMemsetAsync(abs_objective_.data(), 0, sizeof(f_t) * abs_objective_.size(), stream_view_));
+    cudaMemsetAsync(abs_objective_.data(), 0, sizeof(f_t) * abs_objective_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    l2_dual_residual_.data(), 0, sizeof(f_t) * l2_dual_residual_.size(), stream_view_));
+    l2_dual_residual_.data(), 0, sizeof(f_t) * l2_dual_residual_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    l2_primal_residual_.data(), 0, sizeof(f_t) * l2_primal_residual_.size(), stream_view_));
+    l2_primal_residual_.data(), 0, sizeof(f_t) * l2_primal_residual_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    linf_primal_residual_.data(), 0, sizeof(f_t) * linf_primal_residual_.size(), stream_view_));
+    linf_primal_residual_.data(), 0, sizeof(f_t) * linf_primal_residual_.size(), stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
-    linf_dual_residual_.data(), 0, sizeof(f_t) * linf_dual_residual_.size(), stream_view_));
+    linf_dual_residual_.data(), 0, sizeof(f_t) * linf_dual_residual_.size(), stream_view_.get()));
 
   init_objective_offsets();
   init_reduction_storage();
