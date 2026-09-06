@@ -574,7 +574,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_cummulative_scaling_to_pro
     op_problem_scaled_.objective_coefficients.data(),
     op_problem_scaled_.objective_coefficients.size(),
     cuda::std::multiplies<f_t>{},
-    stream_view_);
+    stream_view_.get());
 
   using f_t2 = typename type_2<f_t>::type;
   cub::DeviceTransform::Transform(
@@ -599,7 +599,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_cummulative_scaling_to_pro
         if (s != f_t(0)) { return {lower / s, upper / s}; }
         return {lower, upper};
       },
-      stream_view_);
+      stream_view_.get());
   }
 
   cub::DeviceTransform::Transform(
@@ -608,14 +608,14 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_cummulative_scaling_to_pro
     op_problem_scaled_.constraint_lower_bounds.data(),
     op_problem_scaled_.constraint_lower_bounds.size(),
     cuda::std::multiplies<f_t>{},
-    stream_view_);
+    stream_view_.get());
   cub::DeviceTransform::Transform(
     cuda::std::make_tuple(op_problem_scaled_.constraint_upper_bounds.data(),
                           problem_wrap_container(cummulative_constraint_matrix_scaling_)),
     op_problem_scaled_.constraint_upper_bounds.data(),
     op_problem_scaled_.constraint_upper_bounds.size(),
     cuda::std::multiplies<f_t>{},
-    stream_view_);
+    stream_view_.get());
 
 #ifdef CUPDLP_DEBUG_MODE
   print("constraint_lower_bound", op_problem_scaled_.constraint_lower_bounds);
@@ -679,7 +679,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::apply_bound_objective_rescaling_
       [bound_rescaling = bound_rescaling_.data()] __device__(f_t2 variable_bounds) -> f_t2 {
         return {variable_bounds.x * *bound_rescaling, variable_bounds.y * *bound_rescaling};
       },
-      stream_view_);
+      stream_view_.get());
   }
 
   cub::DeviceTransform::Transform(
@@ -735,7 +735,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
       primal_solution.data(),
       primal_solution.size(),
       batch_safe_div<f_t>(),
-      stream_view_);
+      stream_view_.get());
 
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
@@ -744,7 +744,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
         primal_solution.data(),
         primal_solution.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 
@@ -762,7 +762,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
       dual_solution.data(),
       dual_solution.size(),
       batch_safe_div<f_t>(),
-      stream_view_);
+      stream_view_.get());
 
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
@@ -771,7 +771,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
         dual_solution.data(),
         dual_solution.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 
@@ -789,7 +789,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
       dual_slack.data(),
       dual_slack.size(),
       cuda::std::multiplies<>{},
-      stream_view_);
+      stream_view_.get());
 
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
@@ -798,7 +798,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::scale_solutions(
         dual_slack.data(),
         dual_slack.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 }
@@ -857,7 +857,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
       primal_solution.data(),
       primal_solution.size(),
       cuda::std::multiplies<>{},
-      stream_view_);
+      stream_view_.get());
 
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
@@ -868,7 +868,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
         primal_solution.data(),
         primal_solution.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 
@@ -887,7 +887,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
       dual_solution.data(),
       dual_solution.size(),
       cuda::std::multiplies<>{},
-      stream_view_);
+      stream_view_.get());
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
         cuda::std::make_tuple(dual_solution.data(),
@@ -897,7 +897,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
         dual_solution.data(),
         dual_solution.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 
@@ -914,7 +914,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
       dual_slack.data(),
       dual_slack.size(),
       batch_safe_div<f_t>(),
-      stream_view_);
+      stream_view_.get());
     if (hyper_params_.bound_objective_rescaling && !running_mip_) {
       cub::DeviceTransform::Transform(
         cuda::std::make_tuple(dual_slack.data(),
@@ -924,7 +924,7 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::unscale_solutions(
         dual_slack.data(),
         dual_slack.size(),
         cuda::std::multiplies<f_t>{},
-        stream_view_);
+        stream_view_.get());
     }
   }
 }
