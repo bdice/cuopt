@@ -383,7 +383,7 @@ class barrier_reduce_helper_t {
   {
     f_t* out = d_results_.data() + slot;
     if (size == 0) {
-      RAFT_CUDA_TRY(cudaMemsetAsync(out, 0, sizeof(f_t), stream_view.value()));
+      RAFT_CUDA_TRY(cudaMemsetAsync(out, 0, sizeof(f_t), stream_view.get()));
       return;
     }
     size_t temp_storage_bytes = 0;
