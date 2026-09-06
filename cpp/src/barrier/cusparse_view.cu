@@ -178,8 +178,9 @@ cusparse_view_t<i_t, f_t>::cusparse_view_t(raft::handle_t const* handle_ptr,
 {
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublassetpointermode(
     handle_ptr->get_cublas_handle(), CUBLAS_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
-  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(
-    handle_ptr->get_cusparse_handle(), CUSPARSE_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
+  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(handle_ptr->get_cusparse_handle(),
+                                                                 CUSPARSE_POINTER_MODE_DEVICE,
+                                                                 handle_ptr->get_stream().get()));
   // TMP matrix data should already be on the GPU
   constexpr bool debug = false;
   if (debug) { printf("A hash: %zu\n", A.hash()); }

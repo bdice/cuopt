@@ -229,11 +229,11 @@ d_mdarray_t<f_t> generate_matrices(raft::handle_t& handle,
 
   detail::build_cost_matrix<i_t, f_t>
     <<<n_blocks, n_threads, 0, handle.get_stream().get()>>>(cost_matrix.data(),
-                                                      std::get<0>(coordinates).data(),
-                                                      std::get<1>(coordinates).data(),
-                                                      params.n_locations,
-                                                      params.asymmetric,
-                                                      asymmetry_scalar);
+                                                            std::get<0>(coordinates).data(),
+                                                            std::get<1>(coordinates).data(),
+                                                            params.n_locations,
+                                                            params.asymmetric,
+                                                            asymmetry_scalar);
   RAFT_CHECK_CUDA(handle.get_stream().get());
 
   auto seed     = params.seed;
@@ -489,10 +489,10 @@ time_window_t<i_t> generate_time_windows(raft::handle_t& handle,
   auto v_service_time = create_service_time<i_t, f_t>(handle, params);
   detail::fill_time_windows<i_t, f_t>
     <<<params.n_locations, 64, 0, handle.get_stream().get()>>>(time_matrix,
-                                                         v_earliest_time.data(),
-                                                         v_latest_time.data(),
-                                                         params.tw_tightness,
-                                                         params.n_locations);
+                                                               v_earliest_time.data(),
+                                                               v_latest_time.data(),
+                                                               params.tw_tightness,
+                                                               params.n_locations);
   handle.sync_stream();
   RAFT_CHECK_CUDA(handle.get_stream().get());
 

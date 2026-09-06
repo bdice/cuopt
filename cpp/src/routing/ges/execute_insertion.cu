@@ -309,11 +309,11 @@ bool guided_ejection_search_t<i_t, f_t, REQUEST>::execute_best_insertion_ejectio
        1024,
        shared_for_delete_array + shared_for_tmp_route,
        solution_ptr->sol_handle->get_stream().get()>>>(solution_ptr->view(),
-                                                 d_request,
-                                                 (uint64_t*)feasible_candidates_data_.data(),
-                                                 EP.view(),
-                                                 fragment_step,
-                                                 fragment_size);
+                                                       d_request,
+                                                       (uint64_t*)feasible_candidates_data_.data(),
+                                                       EP.view(),
+                                                       fragment_step,
+                                                       fragment_size);
   RAFT_CHECK_CUDA(solution_ptr->sol_handle->get_stream().get());
   // Update EP index, route_id contains the amount we deleted
   found_sol_t selected_move =

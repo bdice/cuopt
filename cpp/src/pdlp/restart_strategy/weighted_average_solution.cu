@@ -33,19 +33,19 @@ weighted_average_solution_t<i_t, f_t>::weighted_average_solution_t(raft::handle_
     iterations_since_last_restart_{0},
     graph(stream_view_, is_batch_mode)
 {
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(sum_primal_solutions_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(sum_dual_solutions_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    sum_primal_solutions_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    sum_dual_solutions_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
 }
 
 template <typename i_t, typename f_t>
 void weighted_average_solution_t<i_t, f_t>::reset_weighted_average_solution()
 {
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(sum_primal_solutions_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(sum_dual_solutions_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    sum_primal_solutions_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    sum_dual_solutions_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
   sum_primal_solution_weights_.set_value_to_zero_async(stream_view_);
   sum_dual_solution_weights_.set_value_to_zero_async(stream_view_);
   iterations_since_last_restart_ = 0;
@@ -89,9 +89,9 @@ void weighted_average_solution_t<i_t, f_t>::add_current_solution_to_weighted_ave
 
     // update weight sums and count (add weight and +1 respectively)
     add_weight_sums<<<1, 1, 0, stream_view_.get()>>>(weight.data(),
-                                               weight.data(),
-                                               sum_primal_solution_weights_.data(),
-                                               sum_dual_solution_weights_.data());
+                                                     weight.data(),
+                                                     sum_primal_solution_weights_.data(),
+                                                     sum_dual_solution_weights_.data());
   });
 
   iterations_since_last_restart_ += 1;
@@ -103,8 +103,8 @@ void weighted_average_solution_t<i_t, f_t>::compute_averages(rmm::device_uvector
 {
   // no iterations have added to the sum, so avg is all zero vector
   if (!iterations_since_last_restart_) {
-    RAFT_CUDA_TRY(
-      cudaMemsetAsync(avg_primal.data(), f_t(0.0), sizeof(f_t) * primal_size_h_, stream_view_.get()));
+    RAFT_CUDA_TRY(cudaMemsetAsync(
+      avg_primal.data(), f_t(0.0), sizeof(f_t) * primal_size_h_, stream_view_.get()));
     RAFT_CUDA_TRY(
       cudaMemsetAsync(avg_dual.data(), f_t(0.0), sizeof(f_t) * dual_size_h_, stream_view_.get()));
     return;

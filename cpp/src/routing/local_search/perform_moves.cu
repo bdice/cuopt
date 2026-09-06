@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2022-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2022-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -429,7 +429,7 @@ bool local_search_t<i_t, f_t, REQUEST>::populate_cross_moves(
   }
   populate_cross_moves_kernel<i_t, f_t, REQUEST>
     <<<1, TPB, sh_size, solution.sol_handle->get_stream().get()>>>(solution.view(),
-                                                             move_candidates.view());
+                                                                   move_candidates.view());
   solution.sol_handle->sync_stream();
   return true;
 }
@@ -443,10 +443,11 @@ void local_search_t<i_t, f_t, REQUEST>::populate_move_path(
   if (n_cycles) {
     populate_move_path_kernel<i_t, f_t, REQUEST>
       <<<n_cycles, 32, 0, solution.sol_handle->get_stream().get()>>>(solution.view(),
-                                                               move_candidates.view());
+                                                                     move_candidates.view());
   }
   populate_intra_candidates<i_t, f_t, REQUEST>
-    <<<1, 128, 0, solution.sol_handle->get_stream().get()>>>(solution.view(), move_candidates.view());
+    <<<1, 128, 0, solution.sol_handle->get_stream().get()>>>(solution.view(),
+                                                             move_candidates.view());
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>

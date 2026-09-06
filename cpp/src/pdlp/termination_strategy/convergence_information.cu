@@ -114,8 +114,8 @@ convergence_information_t<i_t, f_t>::convergence_information_t(
   // Zero the residual workspace (reused each iteration by compute_convergence_information).
   RAFT_CUDA_TRY(cudaMemsetAsync(
     primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_.get()));
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
 }
 
 // ---------------------------------------------------------------------------
@@ -362,20 +362,20 @@ void convergence_information_t<i_t, f_t>::swap_context(
     kernel_config_from_batch_size(static_cast<i_t>(swap_pairs.size()));
   convergence_information_swap_device_vectors_kernel<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(thrust::raw_pointer_cast(swap_pairs.data()),
-                                                 static_cast<i_t>(swap_pairs.size()),
-                                                 make_span(primal_objective_),
-                                                 make_span(dual_objective_),
-                                                 make_span(l2_primal_residual_),
-                                                 make_span(l2_dual_residual_),
-                                                 make_span(linf_primal_residual_),
-                                                 make_span(linf_dual_residual_),
-                                                 make_span(gap_),
-                                                 make_span(abs_objective_),
-                                                 make_span(dual_dot_),
-                                                 make_span(sum_primal_slack_),
-                                                 make_span(objective_offsets_),
-                                                 make_span(l2_norm_primal_linear_objective_),
-                                                 make_span(l2_norm_primal_right_hand_side_));
+                                                       static_cast<i_t>(swap_pairs.size()),
+                                                       make_span(primal_objective_),
+                                                       make_span(dual_objective_),
+                                                       make_span(l2_primal_residual_),
+                                                       make_span(l2_dual_residual_),
+                                                       make_span(linf_primal_residual_),
+                                                       make_span(linf_dual_residual_),
+                                                       make_span(gap_),
+                                                       make_span(abs_objective_),
+                                                       make_span(dual_dot_),
+                                                       make_span(sum_primal_slack_),
+                                                       make_span(objective_offsets_),
+                                                       make_span(l2_norm_primal_linear_objective_),
+                                                       make_span(l2_norm_primal_right_hand_side_));
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
 
@@ -698,8 +698,8 @@ void convergence_information_t<i_t, f_t>::compute_convergence_information(
   //  cleanup for next termination evaluation
   RAFT_CUDA_TRY(cudaMemsetAsync(
     primal_residual_.data(), 0.0, sizeof(f_t) * primal_residual_.size(), stream_view_.get()));
-  RAFT_CUDA_TRY(
-    cudaMemsetAsync(dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(
+    dual_residual_.data(), 0.0, sizeof(f_t) * dual_residual_.size(), stream_view_.get()));
 }
 
 template <typename f_t>

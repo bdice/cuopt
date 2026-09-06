@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -179,8 +179,9 @@ bool optimal_cycles_t<i_t, f_t, REQUEST>::insert_cycle_to_found_position(
     return false;
   }
   // prepare the rotations once and copy them to respective device arrays
-  insert_optimal_rotation_kernel<i_t, f_t><<<1, TPB, sh_size, solution.sol_handle->get_stream().get()>>>(
-    solution.view(), index_delta_pair.data(), eax_fragment.view(), n_rotations);
+  insert_optimal_rotation_kernel<i_t, f_t>
+    <<<1, TPB, sh_size, solution.sol_handle->get_stream().get()>>>(
+      solution.view(), index_delta_pair.data(), eax_fragment.view(), n_rotations);
   solution.compute_route_id_per_node();
   solution.compute_cost();
   return true;
@@ -223,12 +224,13 @@ bool optimal_cycles_t<i_t, f_t, REQUEST>::add_cycles_request(
       n_rotations);
 
     i_t n_blocks = (n_rotations * n_positions + TPB - 1) / TPB;
-    find_optimal_position_kernel<i_t, f_t><<<n_blocks, TPB, 0, solution.sol_handle->get_stream().get()>>>(
-      solution.view(),
-      resource.ls.move_candidates.view(),
-      eax_fragment.view(),
-      n_rotations,
-      raft::device_span<double>(eax_cycle_delta.data(), eax_cycle_delta.size()));
+    find_optimal_position_kernel<i_t, f_t>
+      <<<n_blocks, TPB, 0, solution.sol_handle->get_stream().get()>>>(
+        solution.view(),
+        resource.ls.move_candidates.view(),
+        eax_fragment.view(),
+        n_rotations,
+        raft::device_span<double>(eax_cycle_delta.data(), eax_cycle_delta.size()));
     get_min_delta_and_index(sol, n_rotations * n_positions);
     bool success = insert_cycle_to_found_position(sol, n_rotations);
 

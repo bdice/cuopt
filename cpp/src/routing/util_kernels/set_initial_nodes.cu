@@ -227,8 +227,8 @@ void solution_t<i_t, f_t, REQUEST>::set_initial_nodes(const rmm::device_uvector<
                -1);
   constexpr i_t TPB = 32;
   i_t n_blocks      = (desired_n_routes + TPB - 1) / TPB;
-  set_initial_nodes_kernel<i_t, f_t, REQUEST>
-    <<<n_blocks, TPB, 0, sol_handle->get_stream().get()>>>(view(), problem_ptr->view(), d_indices.data());
+  set_initial_nodes_kernel<i_t, f_t, REQUEST><<<n_blocks, TPB, 0, sol_handle->get_stream().get()>>>(
+    view(), problem_ptr->view(), d_indices.data());
 
   sol_handle->get_stream().sync();
 }

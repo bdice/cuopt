@@ -45,7 +45,8 @@ struct sum_reduce_helper_t {
     buffer_size = 0;
     cub::DeviceReduce::Sum(nullptr, buffer_size, input, out.data(), size, stream_view.get());
     buffer_data.resize(buffer_size, stream_view);
-    cub::DeviceReduce::Sum(buffer_data.data(), buffer_size, input, out.data(), size, stream_view.get());
+    cub::DeviceReduce::Sum(
+      buffer_data.data(), buffer_size, input, out.data(), size, stream_view.get());
     return out.value(stream_view);
   }
 };
@@ -69,8 +70,15 @@ struct transform_reduce_helper_t {
                        i_t size,
                        rmm::cuda_stream_view stream_view)
   {
-    cub::DeviceReduce::TransformReduce(
-      nullptr, buffer_size, input, out.data(), size, reduce_op, transform_op, init, stream_view.get());
+    cub::DeviceReduce::TransformReduce(nullptr,
+                                       buffer_size,
+                                       input,
+                                       out.data(),
+                                       size,
+                                       reduce_op,
+                                       transform_op,
+                                       init,
+                                       stream_view.get());
 
     buffer_data.resize(buffer_size, stream_view);
 
@@ -123,8 +131,15 @@ struct transform_reduce_pair_helper_t {
                              rmm::cuda_stream_view stream_view)
   {
     f2_min_t<f_t> reduce_op{};
-    cub::DeviceReduce::TransformReduce(
-      nullptr, buffer_size, input, out.data(), size, reduce_op, transform_op, init, stream_view.get());
+    cub::DeviceReduce::TransformReduce(nullptr,
+                                       buffer_size,
+                                       input,
+                                       out.data(),
+                                       size,
+                                       reduce_op,
+                                       transform_op,
+                                       init,
+                                       stream_view.get());
 
     buffer_data.resize(buffer_size, stream_view);
 
@@ -240,7 +255,8 @@ class device_csc_matrix_t {
   void form_col_index(rmm::cuda_stream_view stream)
   {
     col_index.resize(x.size(), stream);
-    RAFT_CUDA_TRY(cudaMemsetAsync(col_index.data(), 0, sizeof(i_t) * col_index.size(), stream.get()));
+    RAFT_CUDA_TRY(
+      cudaMemsetAsync(col_index.data(), 0, sizeof(i_t) * col_index.size(), stream.get()));
 
     // Scatter 1 when there is a col start in col_index
     if (col_start.size() > 2) {
@@ -259,8 +275,12 @@ class device_csc_matrix_t {
     // Inclusive cumulative sum to have the corresponding column for each entry
     rmm::device_buffer d_temp_storage;
     size_t temp_storage_bytes{0};
-    cub::DeviceScan::InclusiveSum(
-      nullptr, temp_storage_bytes, col_index.data(), col_index.data(), col_index.size(), stream.get());
+    cub::DeviceScan::InclusiveSum(nullptr,
+                                  temp_storage_bytes,
+                                  col_index.data(),
+                                  col_index.data(),
+                                  col_index.size(),
+                                  stream.get());
     d_temp_storage.resize(temp_storage_bytes, stream);
     cub::DeviceScan::InclusiveSum(d_temp_storage.data(),
                                   temp_storage_bytes,
@@ -418,8 +438,8 @@ void device_csc_matrix_t<i_t, f_t>::to_compressed_row(device_csr_matrix_t<i_t, f
   cub::DeviceScan::ExclusiveSum(
     scan_tmp.data(), scan_bytes, row_counts.data(), Arow.row_start.data(), m, stream.get());
 
-  RAFT_CUDA_TRY(
-    cudaMemcpyAsync(Arow.row_start.data() + m, &nz, sizeof(i_t), cudaMemcpyHostToDevice, stream.get()));
+  RAFT_CUDA_TRY(cudaMemcpyAsync(
+    Arow.row_start.data() + m, &nz, sizeof(i_t), cudaMemcpyHostToDevice, stream.get()));
 
   // rows[]: CSC row indices (sort key). Arow.j / Arow.x hold (col, val) per flat CSC index,
   // then sort_by_key permutes j and x in place into CSR (row, col) order.

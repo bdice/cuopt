@@ -1501,10 +1501,22 @@ static void compute_stats(const rmm::device_uvector<f_t>& vec,
                                           cuda::minimum<>{},
                                           std::numeric_limits<f_t>::max(),
                                           stream.get()));
-  RAFT_CUDA_TRY(cub::DeviceReduce::Reduce(
-    temp_buf.data(), bytes_2, abs_iter, d_largest.data(), n, cuda::maximum<>{}, f_t(0), stream.get()));
-  RAFT_CUDA_TRY(cub::DeviceReduce::Reduce(
-    temp_buf.data(), bytes_3, abs_iter, d_sum.data(), n, cuda::std::plus<>{}, f_t(0), stream.get()));
+  RAFT_CUDA_TRY(cub::DeviceReduce::Reduce(temp_buf.data(),
+                                          bytes_2,
+                                          abs_iter,
+                                          d_largest.data(),
+                                          n,
+                                          cuda::maximum<>{},
+                                          f_t(0),
+                                          stream.get()));
+  RAFT_CUDA_TRY(cub::DeviceReduce::Reduce(temp_buf.data(),
+                                          bytes_3,
+                                          abs_iter,
+                                          d_sum.data(),
+                                          n,
+                                          cuda::std::plus<>{},
+                                          f_t(0),
+                                          stream.get()));
 
   smallest = d_smallest.value(stream);
   largest  = d_largest.value(stream);
@@ -1798,12 +1810,12 @@ void pdlp_solver_t<i_t, f_t>::swap_context(
     kernel_config_from_batch_size(static_cast<i_t>(swap_pairs.size()));
   pdlp_swap_device_vectors_kernel<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(thrust::raw_pointer_cast(swap_pairs.data()),
-                                                 static_cast<i_t>(swap_pairs.size()),
-                                                 make_span(primal_weight_),
-                                                 make_span(best_primal_weight_),
-                                                 make_span(step_size_),
-                                                 make_span(primal_step_size_),
-                                                 make_span(dual_step_size_));
+                                                       static_cast<i_t>(swap_pairs.size()),
+                                                       make_span(primal_weight_),
+                                                       make_span(best_primal_weight_),
+                                                       make_span(step_size_),
+                                                       make_span(primal_step_size_),
+                                                       make_span(dual_step_size_));
   RAFT_CUDA_TRY(cudaPeekAtLastError());
   // Swap unscaled problem's per-climber fields (COL-major blocks)
   if (problem_ptr->objective_coefficients.size() > static_cast<size_t>(primal_size_h_)) {
@@ -3537,11 +3549,11 @@ void pdlp_solver_t<i_t, f_t>::compute_initial_primal_weight()
   const auto [grid_size, block_size] = kernel_config_from_batch_size(climber_strategies_.size());
   compute_weights_initial_primal_weight_from_squared_norms<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(b_vec_norm.data(),
-                                                 c_vec_norm.data(),
-                                                 make_span(primal_weight_),
-                                                 make_span(best_primal_weight_),
-                                                 climber_strategies_.size(),
-                                                 settings_.hyper_params);
+                                                       c_vec_norm.data(),
+                                                       make_span(primal_weight_),
+                                                       make_span(best_primal_weight_),
+                                                       climber_strategies_.size(),
+                                                       settings_.hyper_params);
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   // Sync since we are using local variable

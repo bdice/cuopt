@@ -448,10 +448,10 @@ f_t pdlp_restart_strategy_t<i_t, f_t>::compute_kkt_score(
   const rmm::device_uvector<f_t>& primal_weight)
 {
   kernel_compute_kkt_score<f_t><<<1, 1, 0, stream_view_.get()>>>(l2_primal_residual.data(),
-                                                           l2_dual_residual.data(),
-                                                           gap.data(),
-                                                           primal_weight.data(),
-                                                           tmp_kkt_score_.data());
+                                                                 l2_dual_residual.data(),
+                                                                 gap.data(),
+                                                                 primal_weight.data(),
+                                                                 tmp_kkt_score_.data());
   return tmp_kkt_score_.value(stream_view_);
 }
 
@@ -1232,11 +1232,12 @@ void pdlp_restart_strategy_t<i_t, f_t>::compute_new_primal_weight(
 
   cuopt_assert(!batch_mode_, "compute_new_primal_weight  not supported in batch mode");
 
-  compute_new_primal_weight_kernel<i_t, f_t><<<1, 1, 0, stream_view_.get()>>>(duality_gap.view(),
-                                                                        primal_weight.data(),
-                                                                        step_size.data(),
-                                                                        primal_step_size.data(),
-                                                                        dual_step_size.data());
+  compute_new_primal_weight_kernel<i_t, f_t>
+    <<<1, 1, 0, stream_view_.get()>>>(duality_gap.view(),
+                                      primal_weight.data(),
+                                      step_size.data(),
+                                      primal_step_size.data(),
+                                      dual_step_size.data());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
 
@@ -1383,8 +1384,8 @@ __global__ void pick_restart_candidate_kernel(
 template <typename i_t, typename f_t>
 i_t pdlp_restart_strategy_t<i_t, f_t>::pick_restart_candidate()
 {
-  pick_restart_candidate_kernel<i_t, f_t>
-    <<<1, 1, 0, stream_view_.get()>>>(avg_duality_gap_.view(), current_duality_gap_.view(), this->view());
+  pick_restart_candidate_kernel<i_t, f_t><<<1, 1, 0, stream_view_.get()>>>(
+    avg_duality_gap_.view(), current_duality_gap_.view(), this->view());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   i_t restart_to_average_h = candidate_is_avg_.value(stream_view_);
@@ -1448,8 +1449,8 @@ void pdlp_restart_strategy_t<i_t, f_t>::should_do_adaptive_restart_normalized_du
 
   compute_distance_traveled_last_restart_kernel<i_t, f_t>
     <<<1, 1, 0, stream_view_.get()>>>(candidate_duality_gap.view(),
-                                primal_weight.data(),
-                                last_restart_duality_gap_.distance_traveled_.data());
+                                      primal_weight.data(),
+                                      last_restart_duality_gap_.distance_traveled_.data());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   bound_optimal_objective(
@@ -1589,7 +1590,8 @@ void pdlp_restart_strategy_t<i_t, f_t>::compute_bound(const rmm::device_uvector<
 #ifdef PDLP_DEBUG_MODE
   std::cout << "Compute bound" << std::endl;
 #endif
-  raft::linalg::eltwiseSub(tmp.data(), solution_tr.data(), solution.data(), size, stream_view_.get());
+  raft::linalg::eltwiseSub(
+    tmp.data(), solution_tr.data(), solution.data(), size, stream_view_.get());
 
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(handle_ptr_->get_cublas_handle(),
                                                   size,
@@ -2352,8 +2354,9 @@ void pdlp_restart_strategy_t<i_t, f_t>::compute_dual_gradient(
   i_t number_of_blocks = dual_size_h_ / block_size;
   if (dual_size_h_ % block_size) number_of_blocks++;
   i_t number_of_threads = std::min(dual_size_h_, block_size);
-  compute_subgradient_kernel<i_t, f_t><<<number_of_blocks, number_of_threads, 0, stream_view_.get()>>>(
-    this->view(), problem_ptr->view(), duality_gap.view(), tmp_dual.data());
+  compute_subgradient_kernel<i_t, f_t>
+    <<<number_of_blocks, number_of_threads, 0, stream_view_.get()>>>(
+      this->view(), problem_ptr->view(), duality_gap.view(), tmp_dual.data());
 
   // dual gradient = subgradient - primal_product (tmp_dual-dual_gradient)
   raft::linalg::eltwiseSub(duality_gap.dual_gradient_.data(),

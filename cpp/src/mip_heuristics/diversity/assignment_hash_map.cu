@@ -84,9 +84,11 @@ size_t assignment_hash_map_t<i_t, f_t>::hash_solution(solution_t<i_t, f_t>& solu
   fill_integer_assignment(solution);
   thrust::fill(
     solution.handle_ptr->get_thrust_policy(), reduction_buffer.begin(), reduction_buffer.end(), 0);
-  hash_solution_kernel<i_t, f_t, TPB>
-    <<<(integer_assignment.size() + TPB - 1) / TPB, TPB, 0, solution.handle_ptr->get_stream().get()>>>(
-      cuopt::make_span(integer_assignment), cuopt::make_span(reduction_buffer));
+  hash_solution_kernel<i_t, f_t, TPB><<<(integer_assignment.size() + TPB - 1) / TPB,
+                                        TPB,
+                                        0,
+                                        solution.handle_ptr->get_stream().get()>>>(
+    cuopt::make_span(integer_assignment), cuopt::make_span(reduction_buffer));
   RAFT_CHECK_CUDA(solution.handle_ptr->get_stream().get());
   // Get the number of blocks used in the hash_solution_kernel
   int num_blocks = (integer_assignment.size() + TPB - 1) / TPB;

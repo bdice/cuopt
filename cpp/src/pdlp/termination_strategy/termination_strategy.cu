@@ -421,12 +421,12 @@ void pdlp_termination_strategy_t<i_t, f_t>::check_termination_criteria()
   const auto [grid_size, block_size] = kernel_config_from_batch_size(climber_strategies_.size());
   check_termination_criteria_kernel<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(convergence_information_.view(),
-                                                 infeasibility_information_.view(),
-                                                 make_span(termination_status_),
-                                                 settings_.tolerances,
-                                                 settings_.detect_infeasibility,
-                                                 settings_.per_constraint_residual,
-                                                 climber_strategies_.size());
+                                                       infeasibility_information_.view(),
+                                                       make_span(termination_status_),
+                                                       settings_.tolerances,
+                                                       settings_.detect_infeasibility,
+                                                       settings_.per_constraint_residual,
+                                                       climber_strategies_.size());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
 

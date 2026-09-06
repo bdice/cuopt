@@ -210,12 +210,12 @@ void create_constraint_graph(const raft::handle_t* handle_ptr,
     rmm::device_scalar<i_t> errors(zero_v<i_t>, handle_ptr->get_stream());
     check_constraint_data<i_t, f_t>
       <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
-                                                               make_span(offsets),
-                                                               make_span(coeff),
-                                                               make_span(edge),
-                                                               bounds,
-                                                               pb.view(),
-                                                               errors.data());
+                                                                     make_span(offsets),
+                                                                     make_span(coeff),
+                                                                     make_span(edge),
+                                                                     bounds,
+                                                                     pb.view(),
+                                                                     errors.data());
     i_t error_count = errors.value(handle_ptr->get_stream());
     if (error_count != 0) { std::cerr << "adjacency list copy mismatch\n"; }
   }
@@ -246,24 +246,24 @@ void create_variable_graph(const raft::handle_t* handle_ptr,
   // copy adjacency lists and vertex properties
   variable_data_copy<i_t, f_t>
     <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
-                                                             make_span(offsets),
-                                                             make_span(coeff),
-                                                             make_span(edge),
-                                                             bounds,
-                                                             make_span(types),
-                                                             pb.view());
+                                                                   make_span(offsets),
+                                                                   make_span(coeff),
+                                                                   make_span(edge),
+                                                                   bounds,
+                                                                   make_span(types),
+                                                                   pb.view());
 
   if (debug) {
     rmm::device_scalar<i_t> errors(zero_v<i_t>, handle_ptr->get_stream());
     check_variable_data<i_t, f_t>
       <<<reorg_ids.size(), 256, 0, handle_ptr->get_stream().get()>>>(make_span(reorg_ids),
-                                                               make_span(offsets),
-                                                               make_span(coeff),
-                                                               make_span(edge),
-                                                               bounds,
-                                                               make_span(types),
-                                                               pb.view(),
-                                                               errors.data());
+                                                                     make_span(offsets),
+                                                                     make_span(coeff),
+                                                                     make_span(edge),
+                                                                     bounds,
+                                                                     make_span(types),
+                                                                     pb.view(),
+                                                                     errors.data());
     i_t error_count = errors.value(handle_ptr->get_stream());
     if (error_count != 0) { std::cerr << "adjacency list copy mismatch\n"; }
   }

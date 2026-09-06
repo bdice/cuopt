@@ -381,7 +381,7 @@ i_t extract_non_overlapping_moves(solution_t<i_t, f_t, REQUEST>& sol,
   i_t n_blocks_for_compact = (sol.n_routes * sol.n_routes + TPB - 1) / TPB;
   compact_best_route_pair_moves<i_t, f_t, REQUEST>
     <<<n_blocks_for_compact, TPB, 0, sol.sol_handle->get_stream().get()>>>(sol.view(),
-                                                                     move_candidates.view());
+                                                                           move_candidates.view());
   i_t n_best_route_pair_moves =
     move_candidates.vrp_move_candidates.n_best_route_pair_moves.value(sol.sol_handle->get_stream());
   n_best_route_pair_moves = std::min(n_best_route_pair_moves, max_n_best_route_pair_moves);

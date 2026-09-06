@@ -726,8 +726,9 @@ cusparse_view_t<i_t, f_t>::cusparse_view_t(
   std::cout << "PDLP cusparse view init" << std::endl;
 #endif
 
-  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(
-    handle_ptr_->get_cusparse_handle(), CUSPARSE_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
+  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(handle_ptr_->get_cusparse_handle(),
+                                                                 CUSPARSE_POINTER_MODE_DEVICE,
+                                                                 handle_ptr->get_stream().get()));
 
   // setup cusparse view
   A = make_csr<i_t, f_t>(op_problem.n_constraints,
@@ -934,8 +935,9 @@ cusparse_view_t<i_t, f_t>::cusparse_view_t(
   std::cout << "Restart Strategy cusparse view init" << std::endl;
 #endif
 
-  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(
-    handle_ptr_->get_cusparse_handle(), CUSPARSE_POINTER_MODE_DEVICE, handle_ptr->get_stream().get()));
+  RAFT_CUSPARSE_TRY(raft::sparse::detail::cusparsesetpointermode(handle_ptr_->get_cusparse_handle(),
+                                                                 CUSPARSE_POINTER_MODE_DEVICE,
+                                                                 handle_ptr->get_stream().get()));
 
   // Need to reinstanciate the cuSparse views
   // Copying them from the existing cuSparse view is a bad practice and creates segfault post

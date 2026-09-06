@@ -171,8 +171,9 @@ void solution_t<i_t, f_t, REQUEST>::add_nodes_to_route(
   bool is_set    = set_shmem_of_kernel(insert_nodes_to_route_kernel<i_t, f_t, REQUEST>, sh_size);
   cuopt_expects(is_set, error_type_t::OutOfMemoryError, "Not enough shared memory on device");
   i_t TPB = 256;
-  insert_nodes_to_route_kernel<i_t, f_t, REQUEST><<<1, TPB, sh_size, sol_handle->get_stream().get()>>>(
-    view(), route_id, intra_idx, n_nodes_to_insert, temp_nodes.data());
+  insert_nodes_to_route_kernel<i_t, f_t, REQUEST>
+    <<<1, TPB, sh_size, sol_handle->get_stream().get()>>>(
+      view(), route_id, intra_idx, n_nodes_to_insert, temp_nodes.data());
   thrust::fill(sol_handle->get_thrust_policy(),
                routes_to_search.data() + route_id,
                routes_to_search.data() + route_id + 1,
@@ -193,7 +194,8 @@ void solution_t<i_t, f_t, REQUEST>::add_nodes_to_best(
     bool is_set    = set_shmem_of_kernel(insert_node_to_best_kernel<i_t, f_t, REQUEST>, sh_size);
     cuopt_expects(is_set, error_type_t::OutOfMemoryError, "Not enough shared memory on device");
     insert_node_to_best_kernel<i_t, f_t, REQUEST>
-      <<<1, TPB, sh_size, sol_handle->get_stream().get()>>>(view(), node, include_objective, weights);
+      <<<1, TPB, sh_size, sol_handle->get_stream().get()>>>(
+        view(), node, include_objective, weights);
     sol_handle->sync_stream();
   }
   this->global_runtime_checks(false, false, "add_nodes_to_best");
@@ -585,7 +587,8 @@ void solution_t<i_t, f_t, REQUEST>::compute_cost()
   objective_cost.set_value_async(zero_obj, sol_handle->get_stream());
   n_infeasible_routes.set_value_to_zero_async(sol_handle->get_stream());
   if (get_n_routes() < 1) return;
-  compute_cost_kernel<i_t, f_t, REQUEST><<<n_blocks, TPB, 0, sol_handle->get_stream().get()>>>(view());
+  compute_cost_kernel<i_t, f_t, REQUEST>
+    <<<n_blocks, TPB, 0, sol_handle->get_stream().get()>>>(view());
 }
 
 template <typename i_t, typename f_t, request_t REQUEST>
@@ -732,7 +735,8 @@ i_t solution_t<i_t, f_t, REQUEST>::compute_max_active()
 {
   raft::common::nvtx::range fun_scope("compute_max_active");
   i_t TPB = 1024;
-  compute_max_active_kernel<i_t, f_t, REQUEST><<<1, TPB, 0, sol_handle->get_stream().get()>>>(view());
+  compute_max_active_kernel<i_t, f_t, REQUEST>
+    <<<1, TPB, 0, sol_handle->get_stream().get()>>>(view());
   max_active_nodes = max_active_nodes_for_all_routes.value(sol_handle->get_stream());
   return max_active_nodes;
 }
@@ -742,8 +746,8 @@ void solution_t<i_t, f_t, REQUEST>::compute_route_id_per_node()
 {
   raft::common::nvtx::range fun_scope("compute_route_id_per_node");
   i_t TPB = 256;
-  compute_route_id_kernel<i_t, f_t, REQUEST>
-    <<<n_routes, TPB, 0, sol_handle->get_stream().get()>>>(routes_view.data(), route_node_map.view());
+  compute_route_id_kernel<i_t, f_t, REQUEST><<<n_routes, TPB, 0, sol_handle->get_stream().get()>>>(
+    routes_view.data(), route_node_map.view());
   global_runtime_checks(false, false, "compute_route_id_per_node");
 }
 

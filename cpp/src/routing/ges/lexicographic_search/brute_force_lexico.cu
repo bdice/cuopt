@@ -203,14 +203,14 @@ std::vector<i_t> guided_ejection_search_t<i_t, f_t, REQUEST>::brute_force_lexico
       i_t n_blocks                         = combinations.size();
       brute_force_lexico_kernel<i_t, f_t, REQUEST>
         <<<n_blocks, TPB, shared_size, stream.get()>>>(d_combinations.data(),
-                                                 sol.view(),
-                                                 route.view(),
-                                                 n_ejections,
-                                                 req,
-                                                 global_min_p.data(),
-                                                 global_sequence.data(),
-                                                 EP.view(),
-                                                 p_scores_.data());
+                                                       sol.view(),
+                                                       route.view(),
+                                                       n_ejections,
+                                                       req,
+                                                       global_min_p.data(),
+                                                       global_sequence.data(),
+                                                       EP.view(),
+                                                       p_scores_.data());
       // copy the best result and keep it here
       sol.sol_handle->sync_stream();
     }

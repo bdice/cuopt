@@ -101,8 +101,10 @@ pdlp_initial_scaling_strategy_t<i_t, f_t>::pdlp_initial_scaling_strategy_t(
   cuopt_assert(original_batch_size_ > 0, "Original batch size must be positive");
 
   // start with all one for scaling vectors
-  RAFT_CUDA_TRY(cudaMemsetAsync(
-    iteration_constraint_matrix_scaling_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(iteration_constraint_matrix_scaling_.data(),
+                                0.0,
+                                sizeof(f_t) * dual_size_h_,
+                                stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
     iteration_variable_scaling_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
   thrust::fill(handle_ptr_->get_thrust_policy(),
@@ -231,8 +233,10 @@ template <typename i_t, typename f_t>
 void pdlp_initial_scaling_strategy_t<i_t, f_t>::ruiz_iter_local()
 {
   // Reset the iteration_scaling vectors to all 0
-  RAFT_CUDA_TRY(cudaMemsetAsync(
-    iteration_constraint_matrix_scaling_.data(), 0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(iteration_constraint_matrix_scaling_.data(),
+                                0,
+                                sizeof(f_t) * dual_size_h_,
+                                stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
     iteration_variable_scaling_.data(), 0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
 
@@ -250,8 +254,13 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::ruiz_iter_local()
   i_t number_of_blocks_col = op_problem_scaled_.n_variables / block_size;
   if (op_problem_scaled_.n_variables % block_size) number_of_blocks_col++;
   i_t number_of_threads_col = std::min(op_problem_scaled_.n_constraints, (i_t)block_size);
-  inf_norm_col_kernel<i_t, f_t><<<number_of_blocks_col, number_of_threads_col, 0, stream_view_.get()>>>(
-    op_problem_scaled_.view(), this->view(), A_T_.data(), A_T_offsets_.data(), A_T_indices_.data());
+  inf_norm_col_kernel<i_t, f_t>
+    <<<number_of_blocks_col, number_of_threads_col, 0, stream_view_.get()>>>(
+      op_problem_scaled_.view(),
+      this->view(),
+      A_T_.data(),
+      A_T_offsets_.data(),
+      A_T_indices_.data());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   if (running_mip_) { reset_integer_variables(); }
@@ -378,8 +387,10 @@ template <typename i_t, typename f_t>
 void pdlp_initial_scaling_strategy_t<i_t, f_t>::pock_chambolle_scaling(f_t alpha)
 {
   // Reset the iteration_scaling vectors to all 0
-  RAFT_CUDA_TRY(cudaMemsetAsync(
-    iteration_constraint_matrix_scaling_.data(), 0.0, sizeof(f_t) * dual_size_h_, stream_view_.get()));
+  RAFT_CUDA_TRY(cudaMemsetAsync(iteration_constraint_matrix_scaling_.data(),
+                                0.0,
+                                sizeof(f_t) * dual_size_h_,
+                                stream_view_.get()));
   RAFT_CUDA_TRY(cudaMemsetAsync(
     iteration_variable_scaling_.data(), 0.0, sizeof(f_t) * primal_size_h_, stream_view_.get()));
 
@@ -517,9 +528,9 @@ void pdlp_initial_scaling_strategy_t<i_t, f_t>::swap_context(
     kernel_config_from_batch_size(static_cast<i_t>(swap_pairs.size()));
   scaling_swap_rescaling_kernel<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(thrust::raw_pointer_cast(swap_pairs.data()),
-                                                 static_cast<i_t>(swap_pairs.size()),
-                                                 make_span(bound_rescaling_),
-                                                 make_span(objective_rescaling_));
+                                                       static_cast<i_t>(swap_pairs.size()),
+                                                       make_span(bound_rescaling_),
+                                                       make_span(objective_rescaling_));
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 
   for (const auto& pair : swap_pairs) {

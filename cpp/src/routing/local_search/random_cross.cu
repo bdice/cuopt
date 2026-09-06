@@ -228,8 +228,9 @@ void get_offsets_of_route_pairs(solution_t<i_t, f_t, REQUEST>& sol,
 {
   constexpr i_t nthreads = 256;
   auto nblocks           = ((n_random_moves + 1) + nthreads - 1) / nthreads;
-  extract_offsets_kernel<i_t, f_t, REQUEST><<<nblocks, nthreads, 0, sol.sol_handle->get_stream().get()>>>(
-    sol.view(), move_candidates.view(), n_random_moves);
+  extract_offsets_kernel<i_t, f_t, REQUEST>
+    <<<nblocks, nthreads, 0, sol.sol_handle->get_stream().get()>>>(
+      sol.view(), move_candidates.view(), n_random_moves);
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 }
 
@@ -272,7 +273,8 @@ void local_search_t<i_t, f_t, REQUEST>::populate_random_moves(solution_t<i_t, f_
   constexpr i_t nthreads = 256;
   auto nblocks           = sol.get_num_depot_excluded_orders();
   fill_random_route_pair_moves<i_t, f_t, REQUEST>
-    <<<nblocks, nthreads, 0, sol.sol_handle->get_stream().get()>>>(sol.view(), move_candidates.view());
+    <<<nblocks, nthreads, 0, sol.sol_handle->get_stream().get()>>>(sol.view(),
+                                                                   move_candidates.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
   // sort valid moves by route pair index
   i_t n_random_moves = sort_random_moves_by_route_pair_idx(sol, move_candidates);

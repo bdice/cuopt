@@ -562,9 +562,9 @@ void adaptive_step_size_strategy_t<i_t, f_t>::get_primal_and_dual_stepsizes(
                "step size must be the same size as the number of climber strategies");
   compute_actual_stepsizes<i_t, f_t>
     <<<grid_size, block_size, 0, stream_view_.get()>>>(this->view(),
-                                                 make_span(primal_step_size),
-                                                 make_span(dual_step_size),
-                                                 climber_strategies_.size());
+                                                       make_span(primal_step_size),
+                                                       make_span(dual_step_size),
+                                                       climber_strategies_.size());
   RAFT_CUDA_TRY(cudaPeekAtLastError());
 }
 

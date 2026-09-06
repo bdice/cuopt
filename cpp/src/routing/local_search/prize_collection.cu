@@ -1,6 +1,6 @@
 /* clang-format off */
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2023-2025, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2023-2026, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 /* clang-format on */
@@ -229,7 +229,7 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_prize_collection(solution_t<i_t,
 
   get_best_move_per_route<i_t, f_t, REQUEST>
     <<<n_blocks, TPB, shared_size, sol.sol_handle->get_stream().get()>>>(sol.view(),
-                                                                   move_candidates.view());
+                                                                         move_candidates.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   if (!move_candidates.prize_move_candidates.has_improving_routes(sol.sol_handle)) { return false; }
@@ -237,8 +237,9 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_prize_collection(solution_t<i_t,
   n_blocks    = sol.get_n_routes();
   shared_size = sol.check_routes_can_insert_and_get_sh_size(request_info_t<i_t, REQUEST>::size());
   if (!set_shmem_of_kernel(execute_moves<i_t, f_t, REQUEST>, shared_size)) { return false; }
-  execute_moves<i_t, f_t, REQUEST><<<n_blocks, TPB, shared_size, sol.sol_handle->get_stream().get()>>>(
-    sol.view(), move_candidates.view());
+  execute_moves<i_t, f_t, REQUEST>
+    <<<n_blocks, TPB, shared_size, sol.sol_handle->get_stream().get()>>>(sol.view(),
+                                                                         move_candidates.view());
   RAFT_CHECK_CUDA(sol.sol_handle->get_stream().get());
 
   sol.compute_cost();

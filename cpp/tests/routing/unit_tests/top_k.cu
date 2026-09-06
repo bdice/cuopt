@@ -159,10 +159,11 @@ class top_cand_test_t : public routing_test_t<i_t, f_t>, public ::testing::TestW
                   rmm::device_uvector<i_t>& out_index)
   {
     constexpr int TPB = 128;
-    top_k_indices<TPB, i_t><<<width, TPB, 0, this->stream_view_.get()>>>(width,
-                                                                   cuopt::make_span(input_cost),
-                                                                   cuopt::make_span(output_cost),
-                                                                   cuopt::make_span(out_index));
+    top_k_indices<TPB, i_t>
+      <<<width, TPB, 0, this->stream_view_.get()>>>(width,
+                                                    cuopt::make_span(input_cost),
+                                                    cuopt::make_span(output_cost),
+                                                    cuopt::make_span(out_index));
     this->stream_view_.sync();
     RAFT_CUDA_TRY(cudaGetLastError());
   }

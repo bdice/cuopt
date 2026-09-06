@@ -1066,20 +1066,20 @@ bool local_search_t<i_t, f_t, REQUEST>::perform_sliding_window(
          thread_per_block,
          shared_for_tmp_route,
          solution.sol_handle->get_stream().get()>>>(solution.view(),
-                                              found_sliding_solution_data_.data(),
-                                              move_candidates.view(),
-                                              locks_.data(),
-                                              blocks_per_node);
+                                                    found_sliding_solution_data_.data(),
+                                                    move_candidates.view(),
+                                                    locks_.data(),
+                                                    blocks_per_node);
   } else {
     kernel_perform_sliding_window<i_t, f_t, REQUEST, false>
       <<<n_blocks,  // One block for each node
          thread_per_block,
          shared_for_tmp_route,
          solution.sol_handle->get_stream().get()>>>(solution.view(),
-                                              found_sliding_solution_data_.data(),
-                                              move_candidates.view(),
-                                              locks_.data(),
-                                              blocks_per_node);
+                                                    found_sliding_solution_data_.data(),
+                                                    move_candidates.view(),
+                                                    locks_.data(),
+                                                    blocks_per_node);
   }
   sliding_cuda_graph.end_capture(solution.sol_handle->get_stream());
   sliding_cuda_graph.launch_graph(solution.sol_handle->get_stream());
