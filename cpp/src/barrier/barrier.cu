@@ -343,7 +343,7 @@ class barrier_reduce_helper_t {
   void sync(rmm::cuda_stream_view stream_view)
   {
     raft::copy(h_results_.data(), d_results_.data(), static_cast<i_t>(kCount), stream_view);
-    stream_view.synchronize();
+    stream_view.sync();
   }
 
   // Raw reduced values; the caller combines these into residual norms, mu, and objectives.
@@ -4156,7 +4156,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
   f_t p   = d_p.value(stream_view_);
   f_t y   = d_y.value(stream_view_);
 
-  stream_view_.synchronize();
+  stream_view_.sync();
 
   f_t objective_gap_1 = primal_objective - dual_objective;
   f_t objective_gap_2 = xz + wv + rdx - rpy + rwv;

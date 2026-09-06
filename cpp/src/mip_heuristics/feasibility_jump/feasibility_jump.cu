@@ -804,7 +804,7 @@ void fj_t<i_t, f_t>::round_remaining_fractionals(solution_t<i_t, f_t>& solution,
   data.handle_fractionals_only.set_value_async(handle_fractionals_only, climber_stream);
   data.break_condition.set_value_to_zero_async(climber_stream);
   data.temp_break_condition.set_value_to_zero_async(climber_stream);
-  climber_stream.synchronize();
+  climber_stream.sync();
 
   //  Run the fractional move selection and assignment update kernels until all have been rounded
   host_loop(solution, climber_idx);
@@ -909,7 +909,7 @@ i_t fj_t<i_t, f_t>::host_loop(solution_t<i_t, f_t>& solution, i_t climber_idx)
                  data.best_assignment.data(),
                  data.best_assignment.size(),
                  climber_stream);
-      climber_stream.synchronize();
+      climber_stream.sync();
       // this solution cost computation with the changing(or not changing) weights is needed to
       // decide whether we reset the best objective on the FIRST_FEASIBLE mode. once we get rid of
       // FIRST_FEASIBLE mode, we can remove the following too.
@@ -927,7 +927,7 @@ i_t fj_t<i_t, f_t>::host_loop(solution_t<i_t, f_t>& solution, i_t climber_idx)
                      solution.assignment.data(),
                      solution.assignment.size(),
                      climber_stream);
-          climber_stream.synchronize();
+          climber_stream.sync();
           improvement_callback(user_obj, h_assignment);
         }
       }

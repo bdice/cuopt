@@ -215,7 +215,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::setup(
   pb              = &problem;
   auto handle_ptr = pb->handle_ptr;
   auto stream     = handle_ptr->get_stream();
-  stream.synchronize();
+  stream.sync();
   host_bounds.resize(2 * pb->n_variables);
   cnst_slack.resize(2 * pb->n_constraints, stream);
   vars_bnd.resize(2 * pb->n_variables, stream);

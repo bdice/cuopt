@@ -43,7 +43,7 @@ bool compare_lexico_results(guided_ejection_search_t<i_t, f_t, REQUEST>& ges,
     std::vector<i_t> lexico_sequence(2 * k_max + 1);
     raft::update_host(
       lexico_sequence.data(), ges.global_sequence_.data() + 2, 2 * k_max + 1, stream);
-    stream.synchronize();
+    stream.sync();
     p_val_seq_t p_val(0, 0);
     memcpy((uint32_t*)&p_val, &h_global_min, sizeof(uint32_t));
     cuopt_assert(p_val.p_val == brute_force_sequence[0], "p scores don't match");
