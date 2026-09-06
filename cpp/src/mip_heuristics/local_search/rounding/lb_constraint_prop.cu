@@ -585,7 +585,7 @@ void sort_subsections(raft::device_span<i_t> vars,
                                       n_subsections,
                                       offsets.data(),
                                       offsets.data() + 1,
-                                      handle_ptr->get_stream());
+                                      handle_ptr->get_stream().get());
 
   // Allocate temporary storage
   d_temp_storage.resize(temp_storage_bytes, handle_ptr->get_stream());
@@ -601,7 +601,7 @@ void sort_subsections(raft::device_span<i_t> vars,
                                       n_subsections,
                                       offsets.data(),
                                       offsets.data() + 1,
-                                      handle_ptr->get_stream());
+                                      handle_ptr->get_stream().get());
   handle_ptr->sync_stream();
 }
 

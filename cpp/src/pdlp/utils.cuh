@@ -329,7 +329,7 @@ void inline combine_constraint_bounds(const mip::problem_t<i_t, f_t>& op_problem
                                   combined_bounds.data(),
                                   combined_bounds.size(),
                                   combine_finite_abs_bounds<f_t>(),
-                                  op_problem.handle_ptr->get_stream());
+                                  op_problem.handle_ptr->get_stream().get());
 }
 
 // Same as compute_sum_bounds, but without the fused sqrt.
