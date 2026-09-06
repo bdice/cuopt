@@ -491,7 +491,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::calculate_constraint_slack_iter(
     // writes nans to constraint activities that are infeasible
     //-> less expensive checks for update bounds step
     raft::common::nvtx::range scope("act_cuda_task_graph");
-    cudaGraphLaunch(calc_slack_erase_inf_cnst_exec, handle_ptr->get_stream());
+    cudaGraphLaunch(calc_slack_erase_inf_cnst_exec, handle_ptr->get_stream().get());
   }
   infeas_cnst_slack_set_to_nan = true;
   RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
@@ -505,7 +505,7 @@ void load_balanced_bounds_presolve_t<i_t, f_t>::calculate_constraint_slack(
   h_bounds_changed = 0;
   {
     raft::common::nvtx::range scope("act_cuda_task_graph");
-    cudaGraphLaunch(calc_slack_exec, handle_ptr->get_stream());
+    cudaGraphLaunch(calc_slack_exec, handle_ptr->get_stream().get());
   }
   infeas_cnst_slack_set_to_nan = false;
   RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
@@ -518,7 +518,7 @@ bool load_balanced_bounds_presolve_t<i_t, f_t>::update_bounds_from_slack(
   // bounds_changed is copied to h_bounds_changed in upd_bnd_exec
   {
     raft::common::nvtx::range scope("upd_cuda_task_graph");
-    cudaGraphLaunch(upd_bnd_exec, handle_ptr->get_stream());
+    cudaGraphLaunch(upd_bnd_exec, handle_ptr->get_stream().get());
   }
   RAFT_CHECK_CUDA(handle_ptr->get_stream().get());
   constexpr i_t zero = 0;
