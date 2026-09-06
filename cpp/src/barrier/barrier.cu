@@ -387,7 +387,8 @@ class barrier_reduce_helper_t {
       return;
     }
     size_t temp_storage_bytes = 0;
-    cub::DeviceReduce::Reduce(nullptr, temp_storage_bytes, in, out, size, op, init, stream_view.get());
+    cub::DeviceReduce::Reduce(
+      nullptr, temp_storage_bytes, in, out, size, op, init, stream_view.get());
     d_temp_storage_.resize(temp_storage_bytes, stream_view);
     cub::DeviceReduce::Reduce(
       d_temp_storage_.data(), temp_storage_bytes, in, out, size, op, init, stream_view.get());
@@ -409,7 +410,8 @@ class barrier_reduce_helper_t {
     size_t temp_storage_bytes = 0;
     cub::DeviceReduce::Sum(nullptr, temp_storage_bytes, in, out, size, stream_view.get());
     d_temp_storage_.resize(temp_storage_bytes, stream_view);
-    cub::DeviceReduce::Sum(d_temp_storage_.data(), temp_storage_bytes, in, out, size, stream_view.get());
+    cub::DeviceReduce::Sum(
+      d_temp_storage_.data(), temp_storage_bytes, in, out, size, stream_view.get());
   }
 
   void dot_async(Slot slot,
@@ -418,8 +420,14 @@ class barrier_reduce_helper_t {
                  cublasHandle_t cublas_handle,
                  rmm::cuda_stream_view stream_view)
   {
-    RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(
-      cublas_handle, a.size(), a.data(), 1, b.data(), 1, d_results_.data() + slot, stream_view.get()));
+    RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(cublas_handle,
+                                                    a.size(),
+                                                    a.data(),
+                                                    1,
+                                                    b.data(),
+                                                    1,
+                                                    d_results_.data() + slot,
+                                                    stream_view.get()));
   }
 
   rmm::device_uvector<f_t> d_results_;
