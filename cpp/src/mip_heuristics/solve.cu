@@ -948,7 +948,7 @@ std::unique_ptr<mip_solution_interface_t<i_t, f_t>> solve_mip(
   auto gpu_solution = solve_mip<i_t, f_t>(*gpu_problem, settings);
 
   // Ensure all GPU work from the solve is complete before D2H copies in to_cpu_solution(),
-  // which uses rmm::cuda_stream_per_thread (a different stream than the solver used).
+  // which uses the per-thread default stream (a different stream than the solver used).
   stream.synchronize();
 
   // Convert GPU solution back to CPU

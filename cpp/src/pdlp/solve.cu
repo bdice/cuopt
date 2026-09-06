@@ -49,6 +49,8 @@
 #include <pdlp/utilities/problem_checking.cuh>
 
 #include <raft/sparse/detail/cusparse_wrappers.h>
+
+#include <cuda/stream>
 #include <raft/core/cusparse_macros.hpp>
 #include <raft/core/device_setter.hpp>
 #include <raft/core/handle.hpp>
@@ -1607,7 +1609,7 @@ optimization_problem_solution_t<i_t, f_t> run_concurrent(
         {
           try {
             auto call_barrier_thread = [&]() {
-              rmm::cuda_stream_view barrier_stream = rmm::cuda_stream_per_thread;
+              rmm::cuda_stream_view barrier_stream = cuda::stream_ref{cudaStreamPerThread};
               barrier_handle_ptr = std::make_unique<raft::handle_t>(barrier_stream);
               run_barrier_thread<i_t, f_t>(dual_simplex_problem,
                                            settings_pdlp,
@@ -2696,7 +2698,7 @@ std::unique_ptr<lp_solution_interface_t<i_t, f_t>> solve_lp(
     *gpu_problem, settings, problem_checking, use_pdlp_solver_mode, is_batch_mode);
 
   // Ensure all GPU work from the solve is complete before D2H copies in to_cpu_solution(),
-  // which uses rmm::cuda_stream_per_thread (a different stream than the solver used).
+  // which uses the per-thread default stream (a different stream than the solver used).
   stream.synchronize();
 
   // Convert GPU solution back to CPU
