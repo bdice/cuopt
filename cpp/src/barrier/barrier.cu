@@ -4107,7 +4107,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_z_.data(),
                                                   1,
                                                   d_xz.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_w_.size(),
                                                   data.d_w_.data(),
@@ -4115,7 +4115,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_v_.data(),
                                                   1,
                                                   d_wv.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_x_.size(),
                                                   data.d_x_.data(),
@@ -4123,7 +4123,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_dual_residual_.data(),
                                                   1,
                                                   d_rdx.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_y_.size(),
                                                   data.d_y_.data(),
@@ -4131,7 +4131,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_primal_residual_.data(),
                                                   1,
                                                   d_rpy.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_bound_residual_.size(),
                                                   data.d_bound_residual_.data(),
@@ -4139,7 +4139,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_v_.data(),
                                                   1,
                                                   d_rwv.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_primal_residual_.size(),
                                                   data.d_primal_residual_.data(),
@@ -4147,7 +4147,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_primal_residual_.data(),
                                                   1,
                                                   d_p.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(lp.handle_ptr->get_cublas_handle(),
                                                   data.d_y_.size(),
                                                   data.d_y_.data(),
@@ -4155,7 +4155,7 @@ void barrier_solver_t<i_t, f_t>::compute_residual_norms_mu_and_objective(
                                                   data.d_y_.data(),
                                                   1,
                                                   d_y.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   f_t xz  = d_xz.value(stream_view_);
   f_t wv  = d_wv.value(stream_view_);
   f_t rdx = d_rdx.value(stream_view_);

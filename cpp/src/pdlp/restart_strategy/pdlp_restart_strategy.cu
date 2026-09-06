@@ -1262,7 +1262,7 @@ void pdlp_restart_strategy_t<i_t, f_t>::distance_squared_moved_from_last_restart
                                                   old_solution.data(),
                                                   stride,
                                                   debuga.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   RAFT_CUBLAS_TRY(raft::linalg::detail::cublasdot(handle_ptr_->get_cublas_handle(),
                                                   size_of_solutions_h,
                                                   new_solution.data(),
@@ -1270,7 +1270,7 @@ void pdlp_restart_strategy_t<i_t, f_t>::distance_squared_moved_from_last_restart
                                                   new_solution.data(),
                                                   stride,
                                                   debugb.data(),
-                                                  stream_view_));
+                                                  stream_view_.get()));
   std::cout << "Distance squared moved:\n"
             << "  Old location=" << debuga.value(stream_view_) << "\n"
             << "  New location=" << debugb.value(stream_view_) << std::endl;
