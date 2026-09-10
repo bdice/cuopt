@@ -57,7 +57,8 @@ namespace cuopt::mathematical_optimization {
 template <typename i_t, typename f_t>
 optimization_problem_t<i_t, f_t>::optimization_problem_t(raft::handle_t const* handle_ptr)
   : handle_ptr_(handle_ptr),
-    stream_view_(handle_ptr != nullptr ? handle_ptr->get_stream() : cuda::stream_ref{}),
+    stream_view_(handle_ptr != nullptr ? cuda::stream_ref{handle_ptr->get_stream()}
+                                        : cuda::stream_ref{}),
     A_(0, stream_view_),
     A_indices_(0, stream_view_),
     A_offsets_(0, stream_view_),
