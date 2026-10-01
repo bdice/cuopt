@@ -42,6 +42,7 @@
 #include <thrust/tabulate.h>
 #include <thrust/transform_reduce.h>
 #include <thrust/tuple.h>
+#include <cuda/functional>
 #include <cuda/std/functional>
 #include <cuda/stream>
 
