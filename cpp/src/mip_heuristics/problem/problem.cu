@@ -27,6 +27,9 @@
 #include <mip_heuristics/utils.cuh>
 #include <utilities/hashing.hpp>
 
+#include <cub/device/device_segmented_reduce.cuh>
+#include <cub/device/device_segmented_sort.cuh>
+
 #include <thrust/binary_search.h>
 #include <thrust/copy.h>
 #include <thrust/count.h>
