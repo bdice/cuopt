@@ -26,6 +26,7 @@
 #include <utilities/manual_cuda_graph.cuh>
 #include <utilities/pcgenerator.hpp>
 
+#include <cub/device/device_reduce.cuh>
 #include <functional>
 
 #define FJ_DEBUG_LOAD_BALANCING 0

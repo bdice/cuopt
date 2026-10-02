@@ -34,6 +34,8 @@
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/transform_reduce.h>
 #include <thrust/tuple.h>
+#include <cub/device/device_reduce.cuh>
+#include <cub/device/device_transform.cuh>
 
 namespace cuopt::mathematical_optimization::pdlp {
 

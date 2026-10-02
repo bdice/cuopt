@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <cub/block/block_reduce.cuh>
+#include <cub/warp/warp_reduce.cuh>
 #include <mip_heuristics/problem/problem.cuh>
 
 namespace cuopt::mathematical_optimization::mip {

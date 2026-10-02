@@ -18,6 +18,7 @@
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/sort.h>
 #include <thrust/tuple.h>
+#include <cub/device/device_segmented_reduce.cuh>
 #include <utilities/copy_helpers.hpp>
 #include <utilities/timer.hpp>
 
