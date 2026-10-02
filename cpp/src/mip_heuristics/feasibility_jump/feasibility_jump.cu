@@ -30,6 +30,7 @@
 #include <cub/device/device_scan.cuh>
 #include <cub/device/device_segmented_reduce.cuh>
 #include <cub/device/device_select.cuh>
+#include <cuda/functional>
 #include <cuda/std/functional>
 
 #include <cooperative_groups.h>
