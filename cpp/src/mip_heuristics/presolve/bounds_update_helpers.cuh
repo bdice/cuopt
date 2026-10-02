@@ -7,6 +7,7 @@
 
 #include <thrust/pair.h>
 #include <cub/block/block_reduce.cuh>
+#include <cuda/functional>
 #include <mip_heuristics/problem/problem.cuh>
 #include <mip_heuristics/utils.cuh>
 #include "bounds_update_data.cuh"

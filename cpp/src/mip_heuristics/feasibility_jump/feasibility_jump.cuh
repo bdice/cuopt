@@ -27,6 +27,7 @@
 #include <utilities/pcgenerator.hpp>
 
 #include <cub/device/device_reduce.cuh>
+#include <cub/util_type.cuh>
 #include <functional>
 
 #define FJ_DEBUG_LOAD_BALANCING 0
