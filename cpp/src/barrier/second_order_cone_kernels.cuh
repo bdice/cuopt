@@ -39,6 +39,7 @@
 #include <numeric>
 #include <span>
 #include <utility>
+#include <vector>
 
 // =============================================================================
 // SOC (second-order cone) kernels for the cuOpt barrier solver.
